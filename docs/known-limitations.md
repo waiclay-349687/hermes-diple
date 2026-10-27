@@ -6,7 +6,7 @@ Each entry says what happens, why, and what would remove it. Most come from host
 
 Plugin storage in Hermes Desktop is the app's `localStorage`, and it sends no change notifications. Before every change the plugin re-reads the session's list; if another window changed it, the plugin rebuilds from storage and applies only this command (add, remove, edit a comment…), so one window never overwrites the whole list of another. Other windows refresh on the browser `storage` event and when they get focus.
 
-- **Remaining:** two windows writing the same list at the very same instant can still lose one write: `localStorage` has no compare-and-set. _(issue not filed yet)_
+- **Remaining:** two windows writing the same list at the very same instant can still lose one write: `localStorage` has no compare-and-set. [#6](https://github.com/waiclay-349687/hermes-diple/issues/6)
 - Send state (queue, in-flight batches) is kept per window and is not merged across windows.
 
 ## `@diple:` references and sessions
@@ -15,7 +15,7 @@ The host does not pass the session to a context-reference provider, but the desk
 
 - A batch that was already delivered can only be expanded again in the session that registered it; elsewhere the provider answers "belongs to another session" without content. The first expansion is not checked: it is the send itself, and only the sender knows the batch id before it.
 - Without session context (for example from the CLI) the check is skipped.
-- If the host gives the same conversation a new session id (for example after context compression), re-expanding an old reference is refused as "another session". Normal sending is not affected. _(issue not filed yet)_
+- If the host gives the same conversation a new session id (for example after context compression), re-expanding an old reference is refused as "another session". Normal sending is not affected. [#7](https://github.com/waiclay-349687/hermes-diple/issues/7)
 
 ## Delivery confirmation
 
@@ -27,7 +27,7 @@ After a batch is expanded, the list is cleared and a pending-confirmation record
 
 An annotation is tied only to a row that can only be its message. When it is taken while the session is busy (or its busy state is unknown), it waits for the first turn of that session that completes after the capture, and is verified against that turn's rows only — never a later turn's.
 
-- **Remaining:** if the session's runtime id is unknown at capture time and cannot be looked up later, the annotation stays "unverified" (never bound to a wrong message) and is not re-verified by later turns. _(issue not filed yet)_
+- **Remaining:** if the session's runtime id is unknown at capture time and cannot be looked up later, the annotation stays "unverified" (never bound to a wrong message) and is not re-verified by later turns. [#8](https://github.com/waiclay-349687/hermes-diple/issues/8)
 
 ## Busy state of background sessions
 
@@ -51,5 +51,5 @@ The plugin can receive annotations from a companion plugin through plugin events
 
 ## Host features not available to plugins
 
-- **No right-click entry:** Hermes Desktop has no context-menu extension point for plugins. _(issue not filed yet)_
-- **No "new session" send target:** the companion plugin's send menu offers the current session, recent sessions and the chat's pending list, but not a new session. The SDK's `newChat()` only opens a draft and returns no stored session id, so a hand-off has nowhere to go. Start the conversation in Hermes first; it then shows among the recent sessions. _(issue not filed yet)_
+- **No right-click entry:** Hermes Desktop has no context-menu extension point for plugins. [#4](https://github.com/waiclay-349687/hermes-diple/issues/4)
+- **No "new session" send target:** the companion plugin's send menu offers the current session, recent sessions and the chat's pending list, but not a new session. The SDK's `newChat()` only opens a draft and returns no stored session id, so a hand-off has nowhere to go. Start the conversation in Hermes first; it then shows among the recent sessions. [#5](https://github.com/waiclay-349687/hermes-diple/issues/5)
