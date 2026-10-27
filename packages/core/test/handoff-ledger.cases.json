@@ -1,0 +1,87 @@
+[
+  {
+    "name": "the first claim wins; a second window is told it is claimed elsewhere",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true, "owner": "A", "generation": 1, "batchId": "bA0001" } },
+      { "at": 1000, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": false } }
+    ]
+  },
+  {
+    "name": "a finished claim returns its receipt instead of the claim",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 10, "req": { "op": "receipt", "owner": "A", "generation": 1, "receipt": { "handoffId": "h-1234", "accepted": ["r1"] } }, "status": 200, "res": { "ok": true } },
+      { "at": 99000, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": false, "receipt": { "handoffId": "h-1234", "accepted": ["r1"] } } }
+    ]
+  },
+  {
+    "name": "a stale claim is taken over: next generation, the SAME batch id, the progress so far",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true, "generation": 1 } },
+      { "at": 100, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "added", "accepted": ["r1"] }, "status": 200, "res": { "ok": true } },
+      { "at": 30050, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": false } },
+      { "at": 30101, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": true, "owner": "B", "generation": 2, "batchId": "bA0001", "progress": { "stage": "added", "accepted": ["r1"], "batchId": "bA0001" } } }
+    ]
+  },
+  {
+    "name": "after a take-over the old holder can neither advance nor receipt (409)",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 31000, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": true, "generation": 2 } },
+      { "at": 31001, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "added", "accepted": ["r1"] }, "status": 409, "res": { "detail": "lost-claim" } },
+      { "at": 31002, "req": { "op": "receipt", "owner": "A", "generation": 1, "receipt": { "handoffId": "h-1234", "accepted": ["r1"], "batchId": "bA0001" } }, "status": 409, "res": { "detail": "lost-claim" } },
+      { "at": 31003, "req": { "op": "advance", "owner": "B", "generation": 2, "stage": "sending", "accepted": ["r1"] }, "status": 200, "res": { "ok": true } },
+      { "at": 31004, "req": { "op": "receipt", "owner": "B", "generation": 2, "receipt": { "handoffId": "h-1234", "accepted": ["r1"], "batchId": "bA0001" } }, "status": 200, "res": { "ok": true } }
+    ]
+  },
+  {
+    "name": "every successful advance renews the lease",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 25000, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "added", "accepted": ["r1"] }, "status": 200, "res": { "ok": true } },
+      { "at": 40000, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": false } }
+    ]
+  },
+  {
+    "name": "stages only move forward",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 1, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "sending", "accepted": ["r1"] }, "status": 200, "res": { "ok": true } },
+      { "at": 2, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "added", "accepted": ["r1"] }, "status": 409, "res": { "detail": "lost-claim" } }
+    ]
+  },
+  {
+    "name": "nothing advances after the receipt; the same holder's receipt again is a no-op",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 1, "req": { "op": "receipt", "owner": "A", "generation": 1, "receipt": { "handoffId": "h-1234", "accepted": ["r1"], "batchId": "bA0001" } }, "status": 200, "res": { "ok": true } },
+      { "at": 2, "req": { "op": "receipt", "owner": "A", "generation": 1, "receipt": { "handoffId": "h-1234", "accepted": [] } }, "status": 200, "res": { "ok": true, "receipt": { "handoffId": "h-1234", "accepted": ["r1"], "batchId": "bA0001" } } },
+      { "at": 3, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "sending", "accepted": ["r1"] }, "status": 409, "res": { "detail": "lost-claim" } }
+    ]
+  },
+  {
+    "name": "the first settled wins; a later, different one does not overwrite it",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 1, "req": { "op": "settle", "settled": { "batchId": "bA0001", "delivered": false, "reason": "turn-error" } }, "status": 200, "res": { "first": true, "settled": { "batchId": "bA0001", "delivered": false, "reason": "turn-error" } } },
+      { "at": 2, "req": { "op": "settle", "settled": { "batchId": "bA0001", "delivered": true } }, "status": 200, "res": { "first": false, "settled": { "batchId": "bA0001", "delivered": false, "reason": "turn-error" } } }
+    ]
+  },
+  {
+    "name": "a settled hand-off cannot be claimed (or taken over) again; its holder can still say what it received",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 1, "req": { "op": "settle", "settled": { "batchId": "bA0001", "delivered": false, "reason": "submit-refused" } }, "status": 200, "res": { "first": true } },
+      { "at": 2, "req": { "op": "advance", "owner": "A", "generation": 1, "stage": "sending", "accepted": ["r1"] }, "status": 409, "res": { "detail": "lost-claim" } },
+      { "at": 3, "req": { "op": "receipt", "owner": "A", "generation": 1, "receipt": { "handoffId": "h-1234", "accepted": ["r1"] } }, "status": 200, "res": { "ok": true } },
+      { "at": 99000, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": false, "settled": { "batchId": "bA0001", "delivered": false, "reason": "submit-refused" } } }
+    ]
+  },
+  {
+    "name": "a lease is not stale at exactly 30 s",
+    "steps": [
+      { "at": 0, "req": { "op": "claim", "owner": "A", "batchId": "bA0001" }, "status": 200, "res": { "claimed": true } },
+      { "at": 30000, "req": { "op": "claim", "owner": "B", "batchId": "bB0001" }, "status": 200, "res": { "claimed": false } }
+    ]
+  }
+]

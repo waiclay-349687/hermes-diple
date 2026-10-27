@@ -1,0 +1,30 @@
+{
+  "name": "hermes-diple",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Diple: a Hermes Desktop plugin to highlight and comment on chat passages and send them to the AI",
+  "license": "MIT",
+  "scripts": {
+    "pretest": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\"",
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"packages/core/test/*.test.mjs\" \"packages/desktop-kit/test/*.test.mjs\" \"tests/desktop/**/*.test.mjs\" && npm run test:perf",
+    "test:perf": "node --test --test-concurrency=1 \"packages/core/test/*.perf.mjs\"",
+    "test:py": "bash scripts/pytest.sh",
+    "test:all": "npm test && npm run test:py",
+    "i18n:gaps": "node scripts/i18n-gaps.mjs",
+    "pretest:ci": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\"",
+    "test:ci": "node --test --test-concurrency=1 \"packages/core/test/*.test.mjs\" \"packages/desktop-kit/test/*.test.mjs\" \"tests/desktop/**/*.test.mjs\" && npm run test:perf",
+    "install:plugin": "node scripts/install.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "jsdom": "26.1.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/waiclay-349687/hermes-diple.git"
+  }
+}

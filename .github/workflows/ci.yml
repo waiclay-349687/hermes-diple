@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:ci
+      - run: npm run build
+      - run: test -s dist/diple/plugin.js
+
+  python:
+    runs-on: ubuntu-latest
+    env:
+      # the Hermes Agent commit this release was tested against
+      HERMES_AGENT_COMMIT: 'bf0203a794a07aac3ff764972ab9087baa4e4f4e'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check out the Hermes Agent host source (read only, for the modules the backend imports)
+        run: |
+          git init -q hermes-agent
+          git -C hermes-agent fetch -q --depth 1 https://github.com/NousResearch/hermes-agent.git "$HERMES_AGENT_COMMIT"
+          git -C hermes-agent checkout -q FETCH_HEAD
+      - run: python -m pip install --quiet pytest fastapi httpx pyyaml ruamel.yaml
+      - name: pytest
+        run: bash scripts/pytest.sh -q
+        env:
+          HERMES_AGENT_ROOT: ${{ github.workspace }}/hermes-agent
+          PYTHON: python

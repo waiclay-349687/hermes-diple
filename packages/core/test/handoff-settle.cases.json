@@ -1,0 +1,812 @@
+[
+  {
+    "name": "membership unknown (legacy: no accepted list): the batch's word for the whole hand-off",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r2",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": null,
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "every accepted item is in the batch: plain settled, no items list",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r1",
+            "revision": 2
+          }
+        },
+        {
+          "origin": {
+            "itemId": "r2",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 2
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "R4 XE4-02: the accepted item was removed from the list — another item's successful batch does not deliver it",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r0002",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r0001",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "r0001",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "removed item, failed batch: still 'removed' (it is not back in the pending list)",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "failed",
+      "outcomeReason": "turn-error",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r0002",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r0001",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "r0001",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "replaced by a newer revision: the old version did not go out",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r0001",
+            "revision": 2
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r0001",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "replaced",
+      "items": [
+        {
+          "itemId": "r0001",
+          "delivered": false,
+          "reason": "replaced"
+        }
+      ]
+    }
+  },
+  {
+    "name": "partly in the batch, batch delivered: delivered, with which item went out and which did not",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r1",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      },
+      {
+        "itemId": "r2",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": true
+        },
+        {
+          "itemId": "r2",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "partly in the batch, batch failed: not delivered; the carried item has the batch's reason",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "failed",
+      "outcomeReason": "turn-error",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r1",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      },
+      {
+        "itemId": "r2",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "turn-error",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "turn-error"
+        },
+        {
+          "itemId": "r2",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "accepted as bare ids (a receipt): matched by item id",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r2",
+            "revision": 3
+          }
+        }
+      ]
+    },
+    "accepted": [
+      "r1"
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "answered without an outcome counts as delivered",
+    "batch": {
+      "batchId": "b1",
+      "status": "answered",
+      "items": [
+        {
+          "origin": {
+            "itemId": "r1",
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "no final word yet: null",
+    "batch": {
+      "batchId": "b1",
+      "status": "expanded",
+      "items": []
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      }
+    ],
+    "expect": null
+  },
+  {
+    "name": "R5 XE4-02: registered, entries are manual annotations only (no itemId): membership KNOWN — the hand-off item was removed",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "sessionId": "s1",
+            "role": "assistant",
+            "rowId": 123
+          },
+          "text": "a chat capture"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: registered with no entries at all: known, nothing of the hand-off went out",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": []
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: never registered (items null — final_batch's placeholder): unknown, the batch's word",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "failed",
+      "outcomeReason": "cancelled",
+      "items": null
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "cancelled"
+    }
+  },
+  {
+    "name": "R5: no items field at all: unknown, the batch's word",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered"
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "R5: registered with manual entries, accepted unknown (legacy): the batch's word",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "sessionId": "s1",
+            "role": "assistant",
+            "rowId": 123
+          },
+          "text": "a chat capture"
+        }
+      ]
+    },
+    "accepted": null,
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "R5: same itemId, other revisions in the batch: replaced",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 1
+          },
+          "text": "t"
+        },
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 3
+          },
+          "text": "t"
+        },
+        {
+          "origin": {
+            "sessionId": "s1",
+            "role": "assistant",
+            "rowId": 123
+          },
+          "text": "a chat capture"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 2
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "replaced",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "replaced"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: same itemId, its revision among others in the batch: carried",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 1
+          },
+          "text": "t"
+        },
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 2
+          },
+          "text": "t"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 2
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "R5: several items, partly carried: one went out, one replaced, one removed",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 1
+          },
+          "text": "t"
+        },
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r2",
+            "revision": 5
+          },
+          "text": "t"
+        },
+        {
+          "origin": {
+            "sessionId": "s1",
+            "role": "assistant",
+            "rowId": 123
+          },
+          "text": "a chat capture"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      },
+      {
+        "itemId": "r2",
+        "revision": 4
+      },
+      {
+        "itemId": "r3",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": true
+        },
+        {
+          "itemId": "r2",
+          "delivered": false,
+          "reason": "replaced"
+        },
+        {
+          "itemId": "r3",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: several items, none carried, one replaced and one removed: 'replaced'",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r2",
+            "revision": 5
+          },
+          "text": "t"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r2",
+        "revision": 4
+      },
+      {
+        "itemId": "r3",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "replaced",
+      "items": [
+        {
+          "itemId": "r2",
+          "delivered": false,
+          "reason": "replaced"
+        },
+        {
+          "itemId": "r3",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: several items, partly carried, batch failed: the carried one has the batch's reason",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "failed",
+      "outcomeReason": "turn-error",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 1
+          },
+          "text": "t"
+        },
+        {
+          "origin": {
+            "sessionId": "s1",
+            "role": "assistant",
+            "rowId": 123
+          },
+          "text": "a chat capture"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1",
+        "revision": 1
+      },
+      {
+        "itemId": "r2",
+        "revision": 1
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "turn-error",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "turn-error"
+        },
+        {
+          "itemId": "r2",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: accepted without a revision matches any revision carried",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 7
+          },
+          "text": "t"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": "r1"
+      }
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "R5: malformed accepted entries (non-string id) are ignored; a non-integer revision counts as none",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "plugin": "diple-docs",
+            "itemId": "r1",
+            "revision": 7
+          },
+          "text": "t"
+        }
+      ]
+    },
+    "accepted": [
+      {
+        "itemId": 5,
+        "revision": 1
+      },
+      {
+        "itemId": "r1",
+        "revision": 1.5
+      },
+      null
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "name": "R5: a carried origin with a non-string itemId does not carry anything",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "delivered",
+      "items": [
+        {
+          "origin": {
+            "itemId": 1,
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "accepted": [
+      "1"
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "1",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    }
+  },
+  {
+    "name": "R5: a failed reason is cut to 100 code points (astral characters count once)",
+    "batch": {
+      "batchId": "b1",
+      "outcome": "failed",
+      "outcomeReason": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+      "items": null
+    },
+    "accepted": null,
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+    }
+  },
+  {
+    "name": "R5: a non-string batchId is no final word",
+    "batch": {
+      "batchId": 7,
+      "outcome": "delivered",
+      "items": []
+    },
+    "accepted": null,
+    "expect": null
+  }
+]

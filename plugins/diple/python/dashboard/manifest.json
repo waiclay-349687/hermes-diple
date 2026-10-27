@@ -1,0 +1,7 @@
+{
+  "name": "diple",
+  "label": "Diple · 圈批",
+  "description": "Backend routes for the Diple desktop plugin",
+  "version": "0.1.0",
+  "api": "plugin_api.py"
+}

@@ -1,0 +1,341 @@
+[
+  {
+    "fn": "settledForPeer",
+    "name": "a sender that declared 'partial' is told the per-item word",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    },
+    "caps": [
+      "partial"
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    }
+  },
+  {
+    "fn": "settledForPeer",
+    "name": "R5 XE5-02: no caps (an older Review), partly carried: not delivered, 'partial', no items",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    },
+    "caps": null,
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "partial"
+    }
+  },
+  {
+    "fn": "settledForPeer",
+    "name": "other caps only: same as none",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    },
+    "caps": [
+      "x"
+    ],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "partial"
+    }
+  },
+  {
+    "fn": "settledForPeer",
+    "name": "caps not a list: none",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    },
+    "caps": "partial",
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "partial"
+    }
+  },
+  {
+    "fn": "settledForPeer",
+    "name": "no caps, nothing carried (delivered false with items): the word stays, items dropped",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        }
+      ]
+    },
+    "caps": [],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": false,
+      "reason": "removed"
+    }
+  },
+  {
+    "fn": "settledForPeer",
+    "name": "no caps, whole hand-off: unchanged",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    },
+    "caps": [],
+    "expect": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true
+    }
+  },
+  {
+    "fn": "settledForPeer",
+    "name": "no caps, malformed item entry counts as not delivered",
+    "settled": {
+      "handoffId": "h1",
+      "delivered": true,
+      "items": [
+        "r1"
+      ]
+    },
+    "caps": null,
+    "expect": {
+      "handoffId": "h1",
+      "delivered": false,
+      "reason": "partial"
+    }
+  },
+  {
+    "fn": "itemOutcomes",
+    "name": "no list: the hand-off's word for every item",
+    "settled": {
+      "delivered": true
+    },
+    "itemIds": [
+      "r1",
+      "r2"
+    ],
+    "expect": [
+      {
+        "itemId": "r1",
+        "delivered": true
+      },
+      {
+        "itemId": "r2",
+        "delivered": true
+      }
+    ]
+  },
+  {
+    "fn": "itemOutcomes",
+    "name": "no list, not delivered: its reason",
+    "settled": {
+      "delivered": false,
+      "reason": "turn-error"
+    },
+    "itemIds": [
+      "r1"
+    ],
+    "expect": [
+      {
+        "itemId": "r1",
+        "delivered": false,
+        "reason": "turn-error"
+      }
+    ]
+  },
+  {
+    "fn": "itemOutcomes",
+    "name": "per-item list decides",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    },
+    "itemIds": [
+      "r1",
+      "r2"
+    ],
+    "expect": [
+      {
+        "itemId": "r1",
+        "delivered": false,
+        "reason": "removed"
+      },
+      {
+        "itemId": "r2",
+        "delivered": true
+      }
+    ]
+  },
+  {
+    "fn": "itemOutcomes",
+    "name": "an item missing from a list that exists did not go out",
+    "settled": {
+      "handoffId": "h1",
+      "batchId": "b1",
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "removed"
+        },
+        {
+          "itemId": "r2",
+          "delivered": true
+        }
+      ]
+    },
+    "itemIds": [
+      "r3"
+    ],
+    "expect": [
+      {
+        "itemId": "r3",
+        "delivered": false,
+        "reason": "unlisted"
+      }
+    ]
+  },
+  {
+    "fn": "itemOutcomes",
+    "name": "an entry saying delivered cannot outvote a hand-off that was not",
+    "settled": {
+      "delivered": false,
+      "reason": "partial",
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": true
+        }
+      ]
+    },
+    "itemIds": [
+      "r1"
+    ],
+    "expect": [
+      {
+        "itemId": "r1",
+        "delivered": false,
+        "reason": "partial"
+      }
+    ]
+  },
+  {
+    "fn": "itemOutcomes",
+    "name": "the first entry of an item wins; malformed entries are skipped",
+    "settled": {
+      "delivered": true,
+      "items": [
+        {
+          "itemId": "r1",
+          "delivered": "yes"
+        },
+        {
+          "itemId": "r1",
+          "delivered": false,
+          "reason": "replaced"
+        },
+        {
+          "itemId": "r1",
+          "delivered": true
+        }
+      ]
+    },
+    "itemIds": [
+      "r1",
+      7
+    ],
+    "expect": [
+      {
+        "itemId": "r1",
+        "delivered": false,
+        "reason": "replaced"
+      }
+    ]
+  }
+]

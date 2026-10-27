@@ -1,0 +1,157 @@
+// capture/ strings (W2a). Keys must match between zh and en.
+export default {
+  zh: {
+    addCommand: '加入待发',
+    keybindCategory: '圈批',
+    commentPlaceholder: '写意见（可不写）',
+    commentLabel: (n) => `第 ${n} 条标注的意见`,
+    remove: '删除',
+    removeN: (n) => `删除第 ${n} 条标注`,
+    summary: (n, k) => `${n} 条标注，其中 ${k} 条批注`,
+    listLabel: '待发列表',
+    collapse: '收起列表',
+    expandList: '展开列表',
+    clearAll: '全部清空',
+    expandText: '展开全文',
+    collapseText: '收起全文',
+    changed: '原文已变',
+    changedTip: '原消息已删除或重新生成，卡片内容保持不变',
+    sending: '发送中',
+    kindComment: '批注',
+    kindHighlight: '划线',
+    originAssistant: (n) => `第 ${n} 条回复`,
+    originUser: (n) => `我的第 ${n} 条消息`,
+    originAssistantApprox: (n) => `约第 ${n} 条回复`,
+    originUserApprox: (n) => `约我的第 ${n} 条消息`,
+    originOtherSession: (title, label) => `「${title}」· ${label}`,
+    otherSession: '另一个会话',
+    originFile: (path, line) => `${path} 第 ${line} 行`,
+    originTip: '点击定位到原文',
+    undoRemoved: '已删除 1 条标注',
+    undoCleared: (n) => `已清空 ${n} 条标注`,
+    undo: '撤销',
+    duplicate: '这段已经在待发列表里了',
+    added: (n) => `已加入 ${n} 条标注`,
+    selectionButton: '标注',
+    // V2-T: editor beside the text, pins, preview, way back
+    editor: {
+      new: '新标注',
+      editComment: '编辑批注',
+      editHighlight: '编辑划线',
+      placeholder: '写意见；不写就是划线',
+      save: '保存',
+      send: '保存并发送',
+      close: '关闭',
+      replace: '用当前选区替换原文',
+      replaceTip: '先在对话里选中新的一段'
+    },
+    pin: {
+      state: { highlight: '划线', comment: '批注', sent: '已发送', answered: '已回应', missing: '漏答' }
+    },
+    preview: {
+      edit: '编辑',
+      remove: '删除',
+      addComment: '写意见',
+      copy: '复制',
+      copied: '已复制原文',
+      copiedBoth: '已复制原文和意见',
+      noComment: '划线，没有意见',
+      sentReadonly: '已发送，不能修改'
+    },
+    back: '回到输入框',
+    reason: {
+      empty: '没有选中文字',
+      outside: '只能标注对话里的消息',
+      composer: '输入框里的文字不能标注',
+      tool: '工具输出暂不支持标注',
+      thinking: '思考过程暂不支持标注',
+      'no-session': '请先打开一个会话',
+      disabled: '圈批插件已停用',
+      'replace-multi': '替换原文时只能选一条消息里的文字',
+      locked: '这批标注正在发送，暂时不能修改'
+    },
+    locate: {
+      'not-loaded': '没找到原消息，可能还没加载，请往上翻一翻',
+      changed: '原文已变：原消息已删除或重新生成',
+      'open-failed': '没能打开原文所在的会话',
+      file: (path) => `这条标注来自文件 ${path}，请在「圈批·文档」里查看原文`
+    }
+  },
+  en: {
+    addCommand: 'Add to pending',
+    keybindCategory: 'Diple',
+    commentPlaceholder: 'Comment (optional)',
+    commentLabel: (n) => `Comment on annotation ${n}`,
+    remove: 'Remove',
+    removeN: (n) => `Remove annotation ${n}`,
+    summary: (n, k) => `${n} annotation${n === 1 ? '' : 's'} · ${k} comment${k === 1 ? '' : 's'}`,
+    listLabel: 'Pending list',
+    collapse: 'Collapse list',
+    expandList: 'Expand list',
+    clearAll: 'Clear all',
+    expandText: 'Show full text',
+    collapseText: 'Show less',
+    changed: 'Original changed',
+    changedTip: 'The original message was deleted or regenerated; this card is kept as is',
+    sending: 'Sending',
+    kindComment: 'Comment',
+    kindHighlight: 'Highlight',
+    originAssistant: (n) => `Reply #${n}`,
+    originUser: (n) => `My message #${n}`,
+    originAssistantApprox: (n) => `About reply #${n}`,
+    originUserApprox: (n) => `About my message #${n}`,
+    originOtherSession: (title, label) => `“${title}” · ${label}`,
+    otherSession: 'Another session',
+    originFile: (path, line) => `${path}:${line}`,
+    originTip: 'Click to show the original',
+    undoRemoved: 'Removed 1 annotation',
+    undoCleared: (n) => `Cleared ${n} annotation${n === 1 ? '' : 's'}`,
+    undo: 'Undo',
+    duplicate: 'This passage is already in the pending list',
+    added: (n) => `Added ${n} annotation${n === 1 ? '' : 's'}`,
+    selectionButton: 'Annotate',
+    // V2-T: editor beside the text, pins, preview, way back
+    editor: {
+      new: 'New annotation',
+      editComment: 'Edit comment',
+      editHighlight: 'Edit highlight',
+      placeholder: 'Comment — leave empty for a highlight',
+      save: 'Save',
+      send: 'Save and send',
+      close: 'Close',
+      replace: 'Replace with the current selection',
+      replaceTip: 'Select another passage in the chat first'
+    },
+    pin: {
+      state: { highlight: 'Highlight', comment: 'Comment', sent: 'Sent', answered: 'Answered', missing: 'Not answered' }
+    },
+    preview: {
+      edit: 'Edit',
+      remove: 'Delete',
+      addComment: 'Add comment',
+      copy: 'Copy',
+      copied: 'Copied the text',
+      copiedBoth: 'Copied the text and comment',
+      noComment: 'Highlight, no comment',
+      sentReadonly: 'Sent, read-only'
+    },
+    back: 'Back to the input',
+    reason: {
+      empty: 'No text selected',
+      outside: 'Only chat messages can be annotated',
+      composer: 'Text in an input box cannot be annotated',
+      tool: 'Tool output cannot be annotated yet',
+      thinking: 'Thinking cannot be annotated yet',
+      'no-session': 'Open a session first',
+      disabled: 'The Diple plugin is turned off',
+      'replace-multi': 'To replace the text, select within one message',
+      locked: 'These annotations are being sent and cannot be changed right now'
+    },
+    locate: {
+      'not-loaded': 'Could not find the original message. It may not be loaded yet — scroll up a little',
+      changed: 'Original changed: the message was deleted or regenerated',
+      'open-failed': 'Could not open the session the annotation came from',
+      file: (path) => `This annotation comes from ${path}; open it in Diple Docs to see the original`
+    }
+  }
+}
