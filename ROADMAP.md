@@ -8,13 +8,12 @@ What has already shipped is in [CHANGELOG.md](CHANGELOG.md).
 
 ## Now
 
-Being built for the next minor version, after v0.1.0.
+Being built for the next minor version, after v0.2.0.
 
 | Item | Status | Issue |
 | --- | --- | --- |
-| The selection button appears just below-right of where the mouse is released, next to the pointer | in progress | [#1](https://github.com/waiclay-349687/hermes-diple/issues/1) |
 | Companion Markdown plugin: collapsible annotation list, a status bar in the page margin, previous / next unresolved, a bottom bar in narrow windows | in progress | [#2](https://github.com/waiclay-349687/hermes-diple/issues/2) |
-| The comment editor opens directly below the selected passage (chat and the companion Markdown plugin) | in progress | [#3](https://github.com/waiclay-349687/hermes-diple/issues/3) |
+| The comment editor opens directly below the selected passage: shipped for chat in v0.2.0; the companion Markdown plugin is still being designed, waiting for confirmation | designing | [#3](https://github.com/waiclay-349687/hermes-diple/issues/3) |
 
 ## Next
 

@@ -10,9 +10,9 @@ Surlignez un passage dans une conversation Hermes Desktop, ajoutez-y un commenta
 
 ## Fonctionnalités
 
-- **Annoter une sélection** — sélectionnez du texte dans n’importe quel message et, dès que vous relâchez la souris, un bouton **Annoter** apparaît à côté (ou appuyez sur <kbd>⌘⇧E</kbd>). Le passage garde son origine : quelle session, quel message, qui l’a dit.
+- **Annoter une sélection** — sélectionnez du texte dans n’importe quel message et, dès que vous relâchez la souris, un bouton **Annoter** apparaît juste en bas à droite de ce point, à côté du pointeur (ou appuyez sur <kbd>⌘⇧E</kbd>). Il fonctionne même si l’application efface la sélection un instant plus tard. Le passage garde son origine : quelle session, quel message, qui l’a dit.
 - **Surlignage ou commentaire** — chaque passage ajouté est une *annotation*. Écrivez un commentaire et c’est un *commentaire* (l’IA doit y répondre) ; laissez-le vide et c’est un *surlignage* (simple contexte).
-- **Commenter sur place** — un petit éditeur s’ouvre à côté du passage : le passage en haut (Markdown rendu), votre commentaire dessous, et **Enregistrer** / **Enregistrer et envoyer** en bas, avec un bouton icône pour remplacer le passage par la sélection actuelle.
+- **Commenter sur place** — un petit éditeur s’ouvre là où était le bouton, sous le passage (au-dessus s’il n’y a pas de place en dessous) : le passage en haut (Markdown rendu), votre commentaire dessous, et **Enregistrer** / **Enregistrer et envoyer** en bas, avec un bouton icône pour remplacer le passage par la sélection actuelle.
 - **Épingles sur l’original** — le texte annoté est ombré (les commentaires sont aussi soulignés) et reçoit une épingle numérotée en haut à droite. Survolez une épingle pour une carte à trois boutons : **Modifier** (ou **Ajouter un commentaire** sur un surlignage), **Copier** et **Supprimer** ; une annotation envoyée ne propose que **Copier**.
 - **Une bande au-dessus de la zone de saisie** — les annotations enregistrées y attendent, par session, sous forme de pastilles numérotées jusqu’à l’envoi. Cliquez sur une pastille pour revenir au passage ; supprimez, effacez tout (annulable) ou prévisualisez ; la liste survit aux rechargements.
 - **Envoyer N ▾** — envoyez avec votre prochain message, ou cliquez sur **Envoyer N** pour n’envoyer que les annotations. Le menu ▾ propose **Envoyer maintenant** et **Copier pour l’IA** (Markdown, rien n’est envoyé).
@@ -26,9 +26,9 @@ L’interface du plugin est disponible dans toutes les langues de Hermes Desktop
 
 ## Captures d’écran
 
-L’éditeur à côté d’un passage (interface en anglais) :
+L’éditeur sous le passage sélectionné, ouvert là où était le bouton **Annoter** (interface en chinois simplifié) :
 
-![L’éditeur de commentaire : le passage en haut, la zone de commentaire, et Save and send / Save en bas](docs/screenshots/editor.png)
+![L’éditeur de commentaire sous le passage sélectionné : le passage en haut, la zone de commentaire, et les boutons d’enregistrement et d’envoi en bas (en chinois)](docs/screenshots/editor.png)
 
 Épingles numérotées en haut à droite de chaque passage ; les épingles voisines se décalent (interface en chinois et texte d’exemple) :
 
@@ -50,11 +50,11 @@ Le plugin a deux moitiés : un plugin de bureau (`plugin.js`) et un petit backen
 
 ### Option A : télécharger une version
 
-1. Téléchargez `plugin.js`, `plugin.js.sha256`, `diple-python-0.1.0.zip` et `diple-python-0.1.0.zip.sha256` depuis la [dernière version](https://github.com/waiclay-349687/hermes-diple/releases), puis vérifiez-les :
+1. Téléchargez `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.0.zip` et `diple-python-0.2.0.zip.sha256` depuis la [dernière version](https://github.com/waiclay-349687/hermes-diple/releases), puis vérifiez-les :
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.1.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.0.zip.sha256
    ```
 
 2. Mettez-les en place :
@@ -62,7 +62,7 @@ Le plugin a deux moitiés : un plugin de bureau (`plugin.js`) et un petit backen
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.1.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
    ```
 
 3. Activez le backend et redémarrez Hermes Desktop :
@@ -87,7 +87,7 @@ hermes plugins enable diple
 
 ## Utilisation
 
-1. Sélectionnez du texte dans un message et cliquez sur **Annoter** à côté de la sélection (ou appuyez sur <kbd>⌘⇧E</kbd>). L’éditeur s’ouvre à côté du passage.
+1. Sélectionnez du texte dans un message et cliquez sur **Annoter** à côté du pointeur (ou appuyez sur <kbd>⌘⇧E</kbd>). L’éditeur s’ouvre sous la sélection.
 2. Écrivez un commentaire si vous voulez, puis appuyez sur <kbd>Entrée</kbd> ou **Enregistrer** ; un commentaire vide enregistre un surlignage. L’annotation reçoit une épingle numérotée et une pastille au-dessus de la zone de saisie. Ajoutez-en autant que vous voulez, de cette session ou d’autres.
 3. Écrivez votre message et envoyez-le comme d’habitude, ou cliquez sur **Envoyer N** (ou <kbd>⌘⇧↩</kbd>) pour n’envoyer que les annotations. Une ligne de reçu sous votre message (« 3 annotations jointes · Voir ce que l’IA a reçu ») montre ce qui est parti.
 4. Dans la réponse, cliquez sur une pastille « ↩ Commentaire n » pour revenir à son passage. Si un commentaire a été sauté, utilisez **Remettre** dans l’avis.

@@ -3,7 +3,9 @@
 // styled like the host's input.
 //
 //   const ed = createEditor({ doc, md, t, anchor, onSave, onCancel, onReplace, canReplace })
-//   ed.open({ key, id, n, mode, text, comment, kind })   mode 'new' | 'edit'
+//   ed.open({ key, id, n, mode, text, comment, kind }, { focus, at })   mode 'new' | 'edit'
+//                     at: { x, rtl } — the leading edge to open on (the toolbar's), kept
+//                     relative to the passage while it scrolls; without x: the passage's start
 //   ed.current()      → that state + { draft } | null
 //   ed.close()        just close (no callbacks)
 //   ed.outside()      the rules for a click outside: new + empty → onCancel;
@@ -23,18 +25,24 @@
 // `anchor(state)` → the passage's client rect, or null (keep the last place).
 
 const WIDTH = 320
-const GAP = 8
+const GAP = 4 // under the passage: where the toolbar's top edge was (scheme B)
 const EDGE = 8
 
 const isImeEnter = (e) => e.isComposing || e.keyCode === 229
 
-/** Above the passage when it fits, else below; left-aligned with it, kept on screen. */
-export function placeEditor(rect, size, viewport) {
-  const left = Math.round(Math.max(EDGE, Math.min(rect.left, viewport.width - size.width - EDGE)))
-  const above = rect.top - GAP - size.height
-  if (above >= EDGE) return { left, top: Math.round(above), side: 'top' }
+/** V3-T (design §V3): below the passage, its leading edge on `lead` (the toolbar's
+ *  leading edge, else the passage's start); RTL mirrored. Not enough room below:
+ *  above the passage; neither: the roomier side, kept on screen. Pure. */
+export function placeEditor(rect, size, viewport, { lead = null, rtl = false } = {}) {
+  const x = lead ?? (rtl ? rect.right : rect.left)
+  const left = Math.round(Math.max(EDGE, Math.min(rtl ? x - size.width : x, viewport.width - size.width - EDGE)))
   const below = rect.bottom + GAP
-  return { left, top: Math.round(Math.max(EDGE, Math.min(below, viewport.height - size.height - EDGE))), side: 'bottom' }
+  const above = rect.top - GAP - size.height
+  const clampY = (y) => Math.round(Math.max(EDGE, Math.min(y, viewport.height - size.height - EDGE)))
+  if (below + size.height <= viewport.height - EDGE) return { left, top: Math.round(below), side: 'bottom' }
+  if (above >= EDGE) return { left, top: Math.round(above), side: 'top' }
+  const roomBelow = viewport.height - rect.bottom
+  return roomBelow >= rect.top ? { left, top: clampY(below), side: 'bottom' } : { left, top: clampY(above), side: 'top' }
 }
 
 export function createEditor({ doc = globalThis.document, md, t, anchor, onSave, onCancel, onReplace, canReplace = () => false }) {
@@ -43,6 +51,7 @@ export function createEditor({ doc = globalThis.document, md, t, anchor, onSave,
   let state = null
   let offMd = null
   let lastRect = null
+  let lead = null // { dx, rtl }: the leading edge, relative to the passage's start edge
 
   const h = (tag, cls, attrs = {}) => {
     const n = doc.createElement(tag)
@@ -142,21 +151,27 @@ export function createEditor({ doc = globalThis.document, md, t, anchor, onSave,
     if (!r) return
     lastRect = r
     const vp = { width: win.innerWidth || doc.documentElement.clientWidth || 0, height: win.innerHeight || doc.documentElement.clientHeight || 0 }
-    const p = placeEditor(r, { width: el.offsetWidth || WIDTH, height: el.offsetHeight || 0 }, vp.width ? vp : { width: 10_000, height: 10_000 })
+    const rtl = Boolean(lead?.rtl)
+    const start = rtl ? r.right : r.left
+    const p = placeEditor(r, { width: el.offsetWidth || WIDTH, height: el.offsetHeight || 0 }, vp.width ? vp : { width: 10_000, height: 10_000 }, { lead: lead?.dx != null ? start + lead.dx : null, rtl })
     el.style.left = `${p.left}px`
     el.style.top = `${p.top}px`
     el.setAttribute('data-side', p.side)
+    el.setAttribute('data-dir', rtl ? 'rtl' : 'ltr')
   }
 
   const onSel = () => refreshReplace()
   doc.addEventListener('selectionchange', onSel)
 
   return {
-    open(next, { focus = true } = {}) {
+    open(next, { focus = true, at = null } = {}) {
       if (!parts) parts = build()
       el = parts.root
       state = { ...next }
       lastRect = null
+      // The leading edge, relative to the passage (it follows a scroll); measured now, before any await.
+      const r0 = anchor(state)
+      lead = { rtl: Boolean(at?.rtl), dx: at?.x != null && r0 ? at.x - (at.rtl ? r0.right : r0.left) : null }
       relabel()
       parts.box.value = next.comment ?? ''
       el.removeAttribute('data-shake')

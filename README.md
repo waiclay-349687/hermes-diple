@@ -10,9 +10,9 @@ Highlight a passage in a Hermes Desktop conversation, optionally write a comment
 
 ## Features
 
-- **Annotate a selection** — select text in any chat message and an **Annotate** button appears next to it as soon as you release the mouse (or press <kbd>⌘⇧E</kbd>). The passage keeps its origin: which session, which message, who said it.
+- **Annotate a selection** — select text in any chat message and an **Annotate** button appears just below-right of where you release the mouse, right next to the pointer (or press <kbd>⌘⇧E</kbd>). It keeps working even if the app clears the selection a moment later. The passage keeps its origin: which session, which message, who said it.
 - **Highlight or comment** — every passage you add is an *annotation*. Write a comment on it and it is a *comment* (the AI must answer it); leave it blank and it is a *highlight* (background material only).
-- **Comment in place** — a small editor opens beside the passage: the passage on top (Markdown rendered), your comment below, and **Save** / **Save and send** at the bottom, with an icon button to replace the passage with the current selection.
+- **Comment in place** — a small editor opens where the button was, below the passage (above it when there is no room below): the passage on top (Markdown rendered), your comment below, and **Save** / **Save and send** at the bottom, with an icon button to replace the passage with the current selection.
 - **Pins on the original** — annotated text is shaded (comments also underlined) and gets a numbered pin on its top-right corner. Hover a pin for a card with three buttons: **Edit** (or **Add comment** on a highlight), **Copy** and **Delete**; a sent annotation only offers **Copy**.
 - **A strip above the composer** — saved annotations wait there per session as numbered chips until you send. Click a chip to go back to its passage; remove, clear (with undo) or preview; the list survives reloads.
 - **Send N ▾** — send with your next message, or press **Send N** to send just the annotations. The ▾ menu has **Send now** and **Copy for AI** (Markdown, nothing is sent).
@@ -26,9 +26,9 @@ The plugin UI is available in every Hermes Desktop language: **English, 简体�
 
 ## Screenshots
 
-The editor beside a passage (English UI):
+The editor below the selected passage, opened where the **Annotate** button was (Simplified Chinese UI):
 
-![The comment editor: the passage on top, the comment box, and Save and send / Save at the bottom](docs/screenshots/editor.png)
+![The comment editor below the selected passage: the passage on top, the comment box, and the save and send buttons at the bottom (in Chinese)](docs/screenshots/editor.png)
 
 Numbered pins on the top-right corner of each passage; neighbouring pins step aside (Chinese UI and sample text):
 
@@ -50,11 +50,11 @@ The plugin has two halves: a desktop plugin (`plugin.js`) and a small Python bac
 
 ### Option A: download a release
 
-1. Download `plugin.js`, `plugin.js.sha256`, `diple-python-0.1.0.zip` and `diple-python-0.1.0.zip.sha256` from the [latest release](https://github.com/waiclay-349687/hermes-diple/releases), and check them:
+1. Download `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.0.zip` and `diple-python-0.2.0.zip.sha256` from the [latest release](https://github.com/waiclay-349687/hermes-diple/releases), and check them:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.1.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.0.zip.sha256
    ```
 
 2. Put them in place:
@@ -62,7 +62,7 @@ The plugin has two halves: a desktop plugin (`plugin.js`) and a small Python bac
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.1.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
    ```
 
 3. Enable the backend and restart Hermes Desktop:
@@ -87,7 +87,7 @@ hermes plugins enable diple
 
 ## Usage
 
-1. Select text in a chat message and click **Annotate** next to the selection (or press <kbd>⌘⇧E</kbd>). The editor opens beside the passage.
+1. Select text in a chat message and click **Annotate** next to the pointer (or press <kbd>⌘⇧E</kbd>). The editor opens below the selection.
 2. Optionally type a comment, then press <kbd>Enter</kbd> or **Save**; an empty comment saves a highlight. The annotation gets a numbered pin and a chip above the composer. Add as many as you like, from this or other sessions.
 3. Type your message and send it as usual, or click **Send N** (or press <kbd>⌘⇧↩</kbd>) to send just the annotations. A receipt line under your message (“3 annotations attached · View what the AI received”) shows what went out.
 4. In the answer, click a “↩ Comment n” chip to jump back to its passage. If a comment was skipped, use **Put back** on the notice.

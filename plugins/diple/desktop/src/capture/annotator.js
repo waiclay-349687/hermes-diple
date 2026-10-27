@@ -30,6 +30,7 @@
 // a click outside. Only one editor at a time.
 
 import { createEditor } from './editor/index.js'
+import { isRtlAt } from './selection-toolbar/index.js'
 import { createPins } from './pins/index.js'
 import { createPreview } from './pins/preview.js'
 import { CopyText } from '@diple/core'
@@ -152,7 +153,13 @@ export function createAnnotator({ doc = globalThis.document, lists, bus, highlig
     void s
   }
 
-  function open(key, id, mode, { focus = true } = {}) {
+  // The passage's direction: an RTL passage gets its editor mirrored.
+  const rtlOf = (id) => {
+    const n = highlighter.entry(id)?.range.startContainer
+    return n ? isRtlAt(n, win) : false
+  }
+
+  function open(key, id, mode, { focus = true, at = null } = {}) {
     const item = itemOf(key, id)
     if (!item) return false
     // The same one again (its pin, its preview's edit): keep what is typed (R8 XV-01).
@@ -170,7 +177,8 @@ export function createAnnotator({ doc = globalThis.document, lists, bus, highlig
     openId = id
     baseline = { id, comment: item.comment ?? '' }
     if (mode === 'new') onDraft(id, true)
-    editor.open({ key, id, n, mode, kind, text: item.text, comment: item.comment ?? '' }, { focus })
+    // V3-T: where the toolbar was (a new one from it), else under the passage's start.
+    editor.open({ key, id, n, mode, kind, text: item.text, comment: item.comment ?? '' }, { focus, at: at ?? { rtl: rtlOf(id) } })
     if (!opened) bus.editorOpened(id)
     syncActive()
     return true
@@ -475,7 +483,7 @@ export function createAnnotator({ doc = globalThis.document, lists, bus, highlig
   }
 
   return {
-    openNew: (key, id) => open(key, id, 'new'),
+    openNew: (key, id, opts) => open(key, id, 'new', opts),
     openEdit: (key, id, opts) => open(key, id, 'edit', opts),
     commitOpen,
     isOpen: () => editor.isOpen(),

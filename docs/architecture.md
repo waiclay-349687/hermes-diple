@@ -23,7 +23,7 @@ Hermes Desktop (renderer)                     Hermes backend (Python)
 
 ## Desktop plugin (`plugins/diple/desktop/src`)
 
-- `capture/` — reads the selection as Markdown, splits it per message, finds its origin (session, message row, role), the editor beside the passage, numbered pins, transcript marks and locate.
+- `capture/` — reads the selection as Markdown, splits it per message, finds its origin (session, message row, role), the editor below the passage, numbered pins, transcript marks and locate.
 - `shared/` — the pending-list store over plugin storage (command-level merge across windows), the **batch catalog** (`batch-catalog.js`: the only module that knows how sent batches are recorded locally, with the backend as fallback — markers, marks and locate read through it), settings rules, i18n bundles, the REST client, live events.
 - `send/` — the **send module** (`sending.js`). Its interface is split by role:
   - the UI (strip, receipt row, preview, markers) gets `request / preview / get / subscribe / resolve` and nothing else;

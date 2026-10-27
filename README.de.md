@@ -10,9 +10,9 @@ Markieren Sie eine Passage in einer Unterhaltung in Hermes Desktop, schreiben Si
 
 ## Funktionen
 
-- **Auswahl annotieren** — markieren Sie Text in einer Chatnachricht; sobald Sie die Maus loslassen, erscheint daneben eine Schaltfläche **Annotieren** (oder drücken Sie <kbd>⌘⇧E</kbd>). Die Passage behält ihre Herkunft: welche Sitzung, welche Nachricht, wer es gesagt hat.
+- **Auswahl annotieren** — markieren Sie Text in einer Chatnachricht; sobald Sie die Maus loslassen, erscheint direkt rechts unterhalb dieser Stelle, neben dem Mauszeiger, eine Schaltfläche **Annotieren** (oder drücken Sie <kbd>⌘⇧E</kbd>). Sie funktioniert auch dann, wenn die App die Auswahl einen Moment später aufhebt. Die Passage behält ihre Herkunft: welche Sitzung, welche Nachricht, wer es gesagt hat.
 - **Markierung oder Kommentar** — jede hinzugefügte Passage ist eine *Annotation*. Mit Kommentar ist sie ein *Kommentar* (die KI muss darauf antworten); ohne ist sie eine *Markierung* (nur Hintergrundmaterial).
-- **Direkt an der Stelle kommentieren** — neben der Passage öffnet sich ein kleiner Editor: oben die Passage (Markdown gerendert), darunter Ihr Kommentar, unten **Speichern** und **Speichern und senden**, dazu eine Symbolschaltfläche, um die Passage durch die aktuelle Auswahl zu ersetzen.
+- **Direkt an der Stelle kommentieren** — dort, wo die Schaltfläche war, öffnet sich unter der Passage ein kleiner Editor (darüber, wenn unten kein Platz ist): oben die Passage (Markdown gerendert), darunter Ihr Kommentar, unten **Speichern** und **Speichern und senden**, dazu eine Symbolschaltfläche, um die Passage durch die aktuelle Auswahl zu ersetzen.
 - **Pins am Original** — annotierter Text wird hinterlegt (Kommentare zusätzlich unterstrichen) und bekommt oben rechts einen nummerierten Pin. Fahren Sie über einen Pin, um eine Karte mit drei Schaltflächen zu sehen: **Bearbeiten** (bei einer Markierung **Kommentar hinzufügen**), **Kopieren** und **Löschen**; eine gesendete Annotation bietet nur **Kopieren**.
 - **Eine Leiste über dem Eingabefeld** — gespeicherte Annotationen warten dort je Sitzung als nummerierte Chips, bis Sie senden. Ein Klick auf einen Chip führt zur Passage zurück; entfernen, alle löschen (rückgängig machbar) oder Vorschau; die Liste übersteht ein Neuladen.
 - **N senden ▾** — mit der nächsten Nachricht senden oder **N senden** klicken, um nur die Annotationen zu senden. Das Menü ▾ bietet **Jetzt senden** und **Für die KI kopieren** (Markdown, nichts wird gesendet).
@@ -26,9 +26,9 @@ Die Oberfläche des Plugins gibt es in allen Sprachen von Hermes Desktop: **Engl
 
 ## Screenshots
 
-Der Editor neben einer Passage (englische Oberfläche):
+Der Editor unter der markierten Passage, geöffnet dort, wo die Schaltfläche **Annotieren** war (vereinfacht-chinesische Oberfläche):
 
-![Der Kommentareditor: oben die Passage, das Kommentarfeld, unten Save and send / Save](docs/screenshots/editor.png)
+![Der Kommentareditor unter der markierten Passage: oben die Passage, das Kommentarfeld, unten die Schaltflächen zum Speichern und Senden (auf Chinesisch)](docs/screenshots/editor.png)
 
 Nummerierte Pins oben rechts an jeder Passage; benachbarte Pins weichen aus (chinesische Oberfläche und Beispieltext):
 
@@ -50,11 +50,11 @@ Das Plugin hat zwei Hälften: ein Desktop-Plugin (`plugin.js`) und ein kleines P
 
 ### Option A: ein Release herunterladen
 
-1. Laden Sie `plugin.js`, `plugin.js.sha256`, `diple-python-0.1.0.zip` und `diple-python-0.1.0.zip.sha256` aus dem [neuesten Release](https://github.com/waiclay-349687/hermes-diple/releases) herunter und prüfen Sie sie:
+1. Laden Sie `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.0.zip` und `diple-python-0.2.0.zip.sha256` aus dem [neuesten Release](https://github.com/waiclay-349687/hermes-diple/releases) herunter und prüfen Sie sie:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.1.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.0.zip.sha256
    ```
 
 2. Legen Sie sie an ihren Platz:
@@ -62,7 +62,7 @@ Das Plugin hat zwei Hälften: ein Desktop-Plugin (`plugin.js`) und ein kleines P
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.1.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
    ```
 
 3. Aktivieren Sie das Backend und starten Sie Hermes Desktop neu:
@@ -87,7 +87,7 @@ hermes plugins enable diple
 
 ## Verwendung
 
-1. Markieren Sie Text in einer Chatnachricht und klicken Sie neben der Auswahl auf **Annotieren** (oder drücken Sie <kbd>⌘⇧E</kbd>). Der Editor öffnet sich neben der Passage.
+1. Markieren Sie Text in einer Chatnachricht und klicken Sie neben dem Mauszeiger auf **Annotieren** (oder drücken Sie <kbd>⌘⇧E</kbd>). Der Editor öffnet sich unter der Auswahl.
 2. Schreiben Sie bei Bedarf einen Kommentar und drücken Sie <kbd>Enter</kbd> oder **Speichern**; ein leerer Kommentar speichert eine Markierung. Die Annotation bekommt einen nummerierten Pin und einen Chip über dem Eingabefeld. Fügen Sie beliebig viele hinzu, aus dieser oder anderen Sitzungen.
 3. Schreiben Sie Ihre Nachricht und senden Sie sie wie gewohnt, oder klicken Sie auf **N senden** (oder <kbd>⌘⇧↩</kbd>), um nur die Annotationen zu senden. Eine Quittungszeile unter Ihrer Nachricht („3 Annotationen angehängt · Ansehen, was die KI erhalten hat“) zeigt, was rausging.
 4. Klicken Sie in der Antwort auf einen Chip „↩ Kommentar n“, um zu seiner Passage zurückzuspringen. Wurde ein Kommentar übersprungen, nutzen Sie **Zurücklegen** im Hinweis.

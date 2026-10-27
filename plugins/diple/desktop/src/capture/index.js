@@ -202,8 +202,17 @@ export function installCapture(ctx, deps) {
   }
 
   /** The current selection, read for capture: { ok, reason?, key, sel, pieces? } */
-  const readCurrent = () => {
+  const readCurrent = (kept = null) => {
     const sel = document.getSelection()
+    // #144421: the host cleared the selection the toolbar was shown for — put that Range back.
+    if (kept && sel && (sel.isCollapsed || !sel.rangeCount)) {
+      try {
+        sel.removeAllRanges()
+        sel.addRange(kept)
+      } catch {
+        // detached meanwhile: read what is there
+      }
+    }
     // Another plugin's capture UI (Diple Docs's document) handles ⌘⇧E itself.
     if (ownedElsewhere(document.activeElement) || (sel?.rangeCount && (ownedElsewhere(sel.anchorNode) || ownedElsewhere(sel.focusNode)))) return { ok: false, reason: 'foreign' }
     if (!settings.get().enabled) return { ok: false, reason: 'disabled' }
@@ -218,8 +227,11 @@ export function installCapture(ctx, deps) {
   /** ⌘⇧E / palette / the toolbar: add the selection to the focused session's
    *  list and open the editor beside it (V2). The same passage again opens
    *  that annotation instead. */
-  const addSelection = () => {
-    const r = readCurrent()
+  const addSelection = ({ range = null, at = null } = {}) => {
+    // From the toolbar: its kept Range and its place. ⌘⇧E / palette while it is up: the same.
+    const tb = range ? { range, at } : button?.current?.() ?? null
+    button?.hide() // it is done: our own removeAllRanges below must not leave it up
+    const r = readCurrent(tb?.range ?? null)
     if (r.reason === 'foreign') return
     if (!r.ok) return refuse(r.reason)
     const { key, sel } = r
@@ -236,7 +248,7 @@ export function installCapture(ctx, deps) {
         if (focus && !focus.duplicate) first ??= focus.id
         if (focus?.duplicate) dup ??= focus.id
       }
-      if (first) annotator?.openNew(key, first)
+      if (first) annotator?.openNew(key, first, { at: tb?.at ?? null })
       else if (dup) {
         say('info', i18n.t('capture.duplicate'))
         annotator?.openEdit(key, dup)
@@ -258,8 +270,10 @@ export function installCapture(ctx, deps) {
   const button = installSelectionToolbar({
     enabled: () => settings.get().enabled && settings.get().selectionButton,
     canCapture: (sel) => canCapture(sel),
-    onActivate: () => void addSelection(),
-    label: () => i18n.t('capture.selectionButton')
+    onActivate: (cur) => void addSelection(cur),
+    label: () => i18n.t('capture.selectionButton'),
+    // never over a pin (V3-T)
+    avoid: () => [...document.querySelectorAll('[data-diple-pin]:not([hidden])')].map((p) => p.getBoundingClientRect()).filter((r) => r.width && r.height)
   })
   ctx.onDispose(() => button.dispose())
 
@@ -307,7 +321,7 @@ export function installCapture(ctx, deps) {
           category,
           // ⌘⇧L is the host's view.showBrowser (built-ins win), so the default is ⌘⇧E.
           defaults: ['mod+shift+e'],
-          run: () => void addSelection()
+          run: () => void addSelection({})
         }
       },
       {
@@ -317,7 +331,7 @@ export function installCapture(ctx, deps) {
           id: 'diple.add',
           label,
           keywords: ['diple', 'quanpi', 'highlight', 'annotate', 'comment', 'pending', 'biaozhu', '\u5708\u6279', '\u6807\u6ce8', '\u5212\u7ebf', '\u6279\u6ce8', '\u5f85\u53d1'],
-          run: () => void addSelection()
+          run: () => void addSelection({})
         }
       }
     ])

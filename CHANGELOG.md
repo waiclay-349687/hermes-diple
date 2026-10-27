@@ -6,6 +6,24 @@ All notable changes to this project are documented here. The format follows [Kee
 
 Planned work is in [ROADMAP.md](ROADMAP.md).
 
+## [0.2.0] - 2026-10-27
+
+The selection button and the comment editor now sit where your hand and eyes already are (ADR 0011).
+
+### Added
+
+- Regression tests for long transcripts that unmount and remount middle messages (upstream [hermes-agent #144170](https://github.com/NousResearch/hermes-agent/pull/144170)): shading and pins come back in place, with no stray pins. The behaviour was already correct; the tests keep it that way.
+
+### Changed
+
+- The **Annotate** button appears just below-right of where you release the mouse, right next to the pointer. For a backwards drag it sits above that line; in Arabic (right-to-left) it is mirrored to below-left; for a keyboard selection it follows the end where the caret is. It stays inside the window near its edges.
+- The comment editor opens where the button was, below the selection. When you jump back to a passage from a pin or a chip, the editor opens below that passage. If there is no room below, it flips above.
+- Any key press other than the plugin's shortcuts now hides the **Annotate** button.
+
+### Fixed
+
+- Hermes Desktop clears a chat selection about a second after it is made (upstream [hermes-agent #144421](https://github.com/NousResearch/hermes-agent/issues/144421)). The **Annotate** button and <kbd>⌘⇧E</kbd> now keep working after that and still annotate the passage you selected.
+
 ## [0.1.0] - 2026-10-27
 
 First public version.
@@ -72,5 +90,6 @@ Compared with the pre-release builds used for testing:
 - Copied text in the display version is made inert, so an `@kind:` inside an annotation is never expanded by the host.
 - The plugin makes no network requests of its own and has no telemetry.
 
-[Unreleased]: https://github.com/waiclay-349687/hermes-diple/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/waiclay-349687/hermes-diple/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/waiclay-349687/hermes-diple/releases/tag/v0.1.0

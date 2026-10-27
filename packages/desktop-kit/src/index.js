@@ -7,3 +7,4 @@ export { LOCALE_IDS, LOCALE_NAMES, RTL_LOCALES, LANGUAGE_SETTINGS, isLocale, dir
 export { createLocaleRuntime, mergeBundles, translateIn, messageKeys } from './locale-runtime.js'
 export { createSettingsStore } from './settings-store.js'
 export { SendMenu, SEND_MENU_CSS } from './send-menu.js'
+export { ResizeHandle, RESIZE_HANDLE_CSS, resizeWidth } from './resize-handle.js'

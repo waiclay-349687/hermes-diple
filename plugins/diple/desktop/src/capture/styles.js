@@ -76,8 +76,10 @@ export const CAPTURE_CSS = `
 .diple-md pre{font-size:11px;max-height:6em;overflow:hidden}
 
 /* ── selection toolbar (design §2.3) ── */
-.diple-toolbar{position:fixed;z-index:46;display:flex;padding:2px;gap:1px;background:color-mix(in srgb,var(--ui-bg-elevated) 96%,transparent);border:1px solid var(--ui-stroke-secondary);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);backdrop-filter:blur(12px) saturate(1.08);-webkit-backdrop-filter:blur(12px) saturate(1.08);opacity:0;transform:scale(.96);transform-origin:50% 100%;pointer-events:none;visibility:hidden;user-select:none;-webkit-user-select:none}
-.diple-toolbar[data-side=bottom]{transform-origin:50% 0}
+.diple-toolbar{position:fixed;z-index:46;display:flex;padding:2px;gap:1px;background:color-mix(in srgb,var(--ui-bg-elevated) 96%,transparent);border:1px solid var(--ui-stroke-secondary);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);backdrop-filter:blur(12px) saturate(1.08);-webkit-backdrop-filter:blur(12px) saturate(1.08);opacity:0;transform:scale(.96);transform-origin:0 0;pointer-events:none;visibility:hidden;user-select:none;-webkit-user-select:none}
+.diple-toolbar[data-side=top]{transform-origin:0 100%}
+.diple-toolbar[data-dir=rtl]{transform-origin:100% 0}
+.diple-toolbar[data-dir=rtl][data-side=top]{transform-origin:100% 100%}
 .diple-toolbar[data-shown]{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition:opacity .12s ease-out,transform .12s ease-out}
 .diple-toolbar-btn{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 6px 0 8px;border:0;border-radius:var(--radius-md);background:none;color:var(--ui-text-secondary);font:500 12px/1 var(--dt-font-sans,system-ui,sans-serif);cursor:pointer}
 .diple-toolbar-btn:hover{background:var(--ui-control-active-background);color:var(--ui-text-primary)}
@@ -101,8 +103,10 @@ export const CAPTURE_CSS = `
 .diple-pin:focus-visible{outline:2px solid var(--ui-accent);outline-offset:1px}
 
 /* ── editor beside the text (design §2.4) ── */
-.diple-editor{width:320px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:10px;display:flex;flex-direction:column;gap:8px;transform-origin:0 100%}
-.diple-editor[data-side=bottom]{transform-origin:0 0}
+.diple-editor{width:320px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:10px;display:flex;flex-direction:column;gap:8px;transform-origin:0 0}
+.diple-editor[data-side=top]{transform-origin:0 100%}
+.diple-editor[data-dir=rtl]{transform-origin:100% 0}
+.diple-editor[data-dir=rtl][data-side=top]{transform-origin:100% 100%}
 .diple-editor-head{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ui-text-tertiary);margin:-2px -4px -2px 0}
 .diple-editor-quote{font-size:12px;line-height:1.55;color:var(--ui-text-secondary)}
 .diple-field{display:block;box-sizing:border-box;width:100%;min-height:56px;max-height:180px;resize:none;margin:0;padding:6px 8px;font:13px/1.5 var(--dt-font-sans,system-ui,sans-serif);color:var(--ui-text-primary);background:color-mix(in srgb,var(--dt-card,transparent) var(--dt-input-bg,0%),transparent);border:1px solid color-mix(in srgb,var(--dt-composer-ring,var(--ui-base)) calc(var(--dt-input-border,7%) * 2),transparent);border-radius:var(--radius-md);box-shadow:var(--dt-input-inset,none);outline:none;transition:border-color .2s ease-out,box-shadow .2s ease-out}

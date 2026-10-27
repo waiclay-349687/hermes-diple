@@ -170,9 +170,10 @@ test('⌘⇧E opens the editor beside the passage, keyboard in its comment box; 
   assert.match(editor().textContent, /第二条回复/, 'summary of the passage')
   assert.equal(items(h).length, 1)
   assert.equal(items(h)[0].comment, '')
-  // placed above the selection (rect top 300): bottom edge 8 px above it
+  // V3-T: placed below the selection, 4 px under its bottom edge
   const top = parseFloat(editor().style.top)
-  assert.ok(top < 300, `editor top ${top}`)
+  assert.equal(editor().getAttribute('data-side'), 'bottom')
+  assert.ok(top > 300, `editor top ${top}`)
   await cleanup()
 })
 

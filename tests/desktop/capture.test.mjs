@@ -718,9 +718,17 @@ test('story 2b: hides on scroll, Esc, typing, blur; ⌘C keeps it; the switch tu
   w.dispatchEvent(new w.Event('blur'))
   assert.equal(shown(), false, 'window blur')
   await showIt()
+  document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+  assert.equal(shown(), false, 'V3-T: any key, an arrow too')
+  await showIt()
+  // V3-T #144421: the host clearing the selection by script leaves it up …
   document.getSelection().removeAllRanges()
   await selChange()
-  assert.equal(shown(), false, 'selection cleared')
+  assert.equal(shown(), true, 'selection cleared by the host: still up')
+  // … a click that collapses it does not
+  document.getElementById('a2').dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true, button: 0 }))
+  assert.equal(shown(), false, 'a click hides it')
+  document.getElementById('a2').dispatchEvent(new w.MouseEvent('mouseup', { bubbles: true, button: 0 }))
   await cleanup()
   // switched off in settings (W2b's toggle writes selectionButton:false)
   const off = await fresh({ settings: { enabled: true, language: 'auto', selectionButton: false } })

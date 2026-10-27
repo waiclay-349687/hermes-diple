@@ -10,9 +10,9 @@ Resalta un pasaje de una conversación en Hermes Desktop, escribe un comentario 
 
 ## Funciones
 
-- **Anotar una selección** — selecciona texto en cualquier mensaje del chat y, en cuanto sueltas el ratón, aparece a su lado un botón **Anotar** (o pulsa <kbd>⌘⇧E</kbd>). El pasaje conserva su origen: qué sesión, qué mensaje, quién lo dijo.
+- **Anotar una selección** — selecciona texto en cualquier mensaje del chat y, en cuanto sueltas el ratón, aparece un botón **Anotar** justo abajo a la derecha de ese punto, junto al puntero (o pulsa <kbd>⌘⇧E</kbd>). Sigue funcionando aunque la aplicación borre la selección un instante después. El pasaje conserva su origen: qué sesión, qué mensaje, quién lo dijo.
 - **Resaltado o comentario** — cada pasaje que añades es una *anotación*. Si le escribes un comentario es un *comentario* (la IA debe responderlo); si lo dejas vacío es un *resaltado* (solo material de contexto).
-- **Comentar en el sitio** — junto al pasaje se abre un pequeño editor: el pasaje arriba (Markdown renderizado), tu comentario debajo y **Guardar** / **Guardar y enviar** al pie, con un botón de icono para reemplazar el pasaje por la selección actual.
+- **Comentar en el sitio** — se abre un pequeño editor donde estaba el botón, debajo del pasaje (encima si no cabe debajo): el pasaje arriba (Markdown renderizado), tu comentario debajo y **Guardar** / **Guardar y enviar** al pie, con un botón de icono para reemplazar el pasaje por la selección actual.
 - **Chinchetas en el original** — el texto anotado se sombrea (los comentarios además se subrayan) y recibe una chincheta numerada en su esquina superior derecha. Pasa el ratón por una chincheta para ver una tarjeta con tres botones: **Editar** (o **Añadir comentario** en un resaltado), **Copiar** y **Eliminar**; una anotación enviada solo ofrece **Copiar**.
 - **Una franja sobre el cuadro de texto** — las anotaciones guardadas esperan ahí, por sesión, como fichas numeradas hasta que las envías. Haz clic en una ficha para volver a su pasaje; elimina, borra todo (se puede deshacer) o previsualiza; la lista sobrevive a las recargas.
 - **Enviar N ▾** — envía con tu próximo mensaje, o pulsa **Enviar N** para enviar solo las anotaciones. El menú ▾ tiene **Enviar ahora** y **Copiar para la IA** (Markdown, no se envía nada).
@@ -26,9 +26,9 @@ La interfaz del plugin está disponible en todos los idiomas de Hermes Desktop: 
 
 ## Capturas de pantalla
 
-El editor junto a un pasaje (interfaz en inglés):
+El editor debajo del pasaje seleccionado, abierto donde estaba el botón **Anotar** (interfaz en chino simplificado):
 
-![El editor de comentarios: el pasaje arriba, el cuadro de comentario y Save and send / Save al pie](docs/screenshots/editor.png)
+![El editor de comentarios debajo del pasaje seleccionado: el pasaje arriba, el cuadro de comentario y los botones de guardar y enviar al pie (en chino)](docs/screenshots/editor.png)
 
 Chinchetas numeradas en la esquina superior derecha de cada pasaje; las vecinas se apartan (interfaz en chino y texto de ejemplo):
 
@@ -50,11 +50,11 @@ El plugin tiene dos mitades: un plugin de escritorio (`plugin.js`) y un pequeño
 
 ### Opción A: descargar una versión
 
-1. Descarga `plugin.js`, `plugin.js.sha256`, `diple-python-0.1.0.zip` y `diple-python-0.1.0.zip.sha256` desde la [última versión](https://github.com/waiclay-349687/hermes-diple/releases) y verifícalos:
+1. Descarga `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.0.zip` y `diple-python-0.2.0.zip.sha256` desde la [última versión](https://github.com/waiclay-349687/hermes-diple/releases) y verifícalos:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.1.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.0.zip.sha256
    ```
 
 2. Colócalos en su sitio:
@@ -62,7 +62,7 @@ El plugin tiene dos mitades: un plugin de escritorio (`plugin.js`) y un pequeño
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.1.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
    ```
 
 3. Activa el backend y reinicia Hermes Desktop:
@@ -87,7 +87,7 @@ hermes plugins enable diple
 
 ## Uso
 
-1. Selecciona texto en un mensaje del chat y haz clic en **Anotar** junto a la selección (o pulsa <kbd>⌘⇧E</kbd>). El editor se abre junto al pasaje.
+1. Selecciona texto en un mensaje del chat y haz clic en **Anotar** junto al puntero (o pulsa <kbd>⌘⇧E</kbd>). El editor se abre debajo de la selección.
 2. Si quieres, escribe un comentario y pulsa <kbd>Intro</kbd> o **Guardar**; un comentario vacío guarda un resaltado. La anotación recibe una chincheta numerada y una ficha sobre el cuadro de texto. Añade tantas como quieras, de esta sesión o de otras.
 3. Escribe tu mensaje y envíalo como siempre, o haz clic en **Enviar N** (o pulsa <kbd>⌘⇧↩</kbd>) para enviar solo las anotaciones. Una línea de recibo bajo tu mensaje («3 anotaciones adjuntas · Ver lo que recibió la IA») muestra qué se envió.
 4. En la respuesta, haz clic en una ficha «↩ Comentario n» para volver a su pasaje. Si se omitió un comentario, usa **Devolver** en el aviso.
