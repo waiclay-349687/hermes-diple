@@ -73,3 +73,37 @@ test('no UI text outside settings carries ⌘ ⇧ ↩ ↵ ⏎ — in all 9 local
   }
   assert.deepEqual(bad, [])
 })
+
+// V3-D2-I: placeholders say what to write, never which key does what
+// ("Enter 保存，Shift+Enter 换行" was the last one). Key names in every
+// locale's own spelling, plus the glyphs.
+const KEY_WORDS = /[⌘⇧⌥⌃↩↵⏎]|\b(Enter|Return|Shift|Tab|Esc|Escape|Ctrl|Control|Cmd|Command|Option|Alt|Intro|Mayús|Entrée|Maj|Umschalt|Eingabe|Strg)\b|Ввод|إدخال|改行キー/i
+
+test('no placeholder in any locale names a key (Enter, Shift, ⌘ …)', async () => {
+  const bad = []
+  for (const id of PLUGINS) {
+    const { LOCALES, LOCALE_IDS } = await loadI18n(id)
+    const walk = (o, prefix, l) => {
+      for (const [k, v] of Object.entries(o)) {
+        const key = prefix ? `${prefix}.${k}` : k
+        if (v && typeof v === 'object') walk(v, key, l)
+        else if (/placeholder/i.test(k)) {
+          const s = typeof v === 'function' ? String(v('X', 'Y', 'Z', 'W')) : String(v)
+          if (KEY_WORDS.test(s)) bad.push(`${id} ${l} ${key}: ${s}`)
+        }
+      }
+    }
+    for (const l of LOCALE_IDS) walk(LOCALES[l] ?? {}, '', l)
+  }
+  assert.deepEqual(bad, [])
+})
+
+test('placeholders set in code come from messages, not literals', () => {
+  const bad = []
+  for (const f of sources()) {
+    if (/\/locales\/|messages\.js$/.test(f)) continue
+    const code = codeOf(fs.readFileSync(path.join(ROOT, f), 'utf8'))
+    for (const m of code.matchAll(/placeholder\s*[=:]\s*\{?\s*(['"`])([^'"`]*)\1/g)) if (m[2].trim()) bad.push(`${f}: ${m[2]}`)
+  }
+  assert.deepEqual(bad, [])
+})

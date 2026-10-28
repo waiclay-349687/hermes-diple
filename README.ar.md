@@ -52,11 +52,11 @@
 
 ### الخيار أ: تنزيل إصدار
 
-1. نزّل `plugin.js` و`plugin.js.sha256` و`diple-python-0.2.0.zip` و`diple-python-0.2.0.zip.sha256` من [أحدث إصدار](https://github.com/waiclay-349687/hermes-diple/releases)، ثم تحقّق منها:
+1. نزّل `plugin.js` و`plugin.js.sha256` و`diple-python-0.2.1.zip` و`diple-python-0.2.1.zip.sha256` من [أحدث إصدار](https://github.com/waiclay-349687/hermes-diple/releases)، ثم تحقّق منها:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.1.zip.sha256
    ```
 
 2. ضعها في أماكنها:
@@ -64,7 +64,7 @@
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
    ```
 
 3. فعّل الواجهة الخلفية وأعد تشغيل Hermes Desktop:

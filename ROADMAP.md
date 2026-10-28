@@ -8,7 +8,7 @@ What has already shipped is in [CHANGELOG.md](CHANGELOG.md).
 
 ## Now
 
-Being built for the next minor version, after v0.2.0.
+Being built for the next minor version, after v0.2.1.
 
 | Item | Status | Issue |
 | --- | --- | --- |

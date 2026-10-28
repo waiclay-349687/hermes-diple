@@ -50,11 +50,11 @@ Hermes Desktop の会話で一節を選んでハイライトし、必要なら�
 
 ### 方法 A：リリースをダウンロード
 
-1. [最新リリース](https://github.com/waiclay-349687/hermes-diple/releases) から `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.0.zip`、`diple-python-0.2.0.zip.sha256` をダウンロードし、検証します：
+1. [最新リリース](https://github.com/waiclay-349687/hermes-diple/releases) から `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.1.zip`、`diple-python-0.2.1.zip.sha256` をダウンロードし、検証します：
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.1.zip.sha256
    ```
 
 2. 所定の場所に置きます：
@@ -62,7 +62,7 @@ Hermes Desktop の会話で一節を選んでハイライトし、必要なら�
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
    ```
 
 3. バックエンドを有効にして Hermes Desktop を再起動します：

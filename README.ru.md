@@ -50,11 +50,11 @@
 
 ### Вариант А: скачать выпуск
 
-1. Скачайте `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.0.zip` и `diple-python-0.2.0.zip.sha256` из [последнего выпуска](https://github.com/waiclay-349687/hermes-diple/releases) и проверьте их:
+1. Скачайте `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.1.zip` и `diple-python-0.2.1.zip.sha256` из [последнего выпуска](https://github.com/waiclay-349687/hermes-diple/releases) и проверьте их:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.1.zip.sha256
    ```
 
 2. Разложите их по местам:
@@ -62,7 +62,7 @@
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
    ```
 
 3. Включите бэкенд и перезапустите Hermes Desktop:

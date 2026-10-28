@@ -4,7 +4,8 @@
 //   <Strip deps ui ctl />      deps.uiBus — the seam to the original text
 //
 // One quiet row of numbered chips (number = send order; filled = comment,
-// hollow = highlight), folded to "+N" past MAX_CHIPS; a meta row below (the
+// hollow = highlight), folded to "+N" past MAX_CHIPS or past what fits the
+// row's width (chipCap, V3-D2-I); a meta row below (the
 // ListFooter service: summary, status, actions). Hovering a chip shows a
 // Markdown preview (never scrolls anything) and tells the original via
 // uiBus.hover; clicking one asks uiBus.locate(itemId, { edit: true }). The
@@ -29,6 +30,26 @@ import { useViewportPlacement } from './placement.js'
 import { chipText, originLabel } from './text.js'
 
 export const MAX_CHIPS = 5
+/** The narrowest a chip may get before it folds into "+N" (number + a few characters). */
+export const CHIP_MIN = 76
+
+/** The row's gap between chips and the width of the "+N" chip (styles.js). */
+const CHIP_GAP = 4
+const MORE_W = 34
+/** How many chips a row `width` px wide shows out of `count` (V3-D2-I: a chat
+ *  beside a docked review page is often 420–600px). Unmeasured (0) → the old
+ *  rule: up to MAX_CHIPS, and never fold away a single chip. Measured → only
+ *  when they do not all fit at CHIP_MIN (gaps counted): as many as fit beside
+ *  the "+N" chip, never under one. */
+export function chipCap(width, count) {
+  const cap = count <= MAX_CHIPS + 1 ? count : MAX_CHIPS
+  if (!(width > 0)) return cap
+  const fits = (n, more) => n * CHIP_MIN + (n - 1) * CHIP_GAP + (more ? CHIP_GAP + MORE_W : 0) <= width
+  if (cap === count && fits(count, false)) return count
+  let n = Math.min(cap, count - 1)
+  while (n > 1 && !fits(n, true)) n--
+  return Math.max(1, n)
+}
 const PREVIEW_W = 340
 const PREVIEW_GAP = 6
 const HINT_MS = 4000
@@ -148,7 +169,20 @@ export function Strip({ deps, ui, ctl }) {
   const items = state.items.filter((it) => !view.drafts?.[it.id])
   // "show all" belongs to one list while it is long: a new session, or a list
   // short enough again, folds back
-  const foldable = items.length > MAX_CHIPS + 1
+  const [row, setRow] = useState(null)
+  const [rowWidth, setRowWidth] = useState(0) // in 4px steps: a resize within one re-renders nothing
+  useEffect(() => {
+    if (!row || typeof ResizeObserver !== 'function') return undefined
+    // The row is a stretched block (styles.js .diple-chips): its width is the
+    // strip's, never its chips', so folding cannot feed back into the measure.
+    const ro = new ResizeObserver((entries) => {
+      const width = entries[entries.length - 1]?.contentRect?.width ?? 0
+      setRowWidth(Math.floor(width / 4) * 4)
+    })
+    ro.observe(row)
+    return () => ro.disconnect()
+  }, [row])
+  const foldable = chipCap(rowWidth, items.length) < items.length
   useEffect(() => {
     if (!foldable) setShowAll(false)
   }, [foldable])
@@ -176,9 +210,10 @@ export function Strip({ deps, ui, ctl }) {
 
   const Footer = services.get('ListFooter')
   const expandedId = view.expanded?.key === key ? view.expanded.id : null
-  const folded = !showAll && items.length > MAX_CHIPS + 1 // "+1" would only hide one chip: show it
-  const shown = folded ? items.slice(0, MAX_CHIPS) : items
-  const hiddenLit = folded && items.slice(MAX_CHIPS).some((it) => it.id === lit || it.id === active)
+  const cap = chipCap(rowWidth, items.length)
+  const folded = !showAll && cap < items.length
+  const shown = folded ? items.slice(0, cap) : items
+  const hiddenLit = folded && items.slice(cap).some((it) => it.id === lit || it.id === active)
   const anyUnlocked = items.some((it) => !PendingList.isLocked(state, it.id))
 
   // The preview is a fixed layer above the chip (placement.js); it never scrolls anything.
@@ -208,7 +243,7 @@ export function Strip({ deps, ui, ctl }) {
   return (
     <section ref={setNode} className="diple-strip" data-diple-ui="" data-diple-list="" data-session-key={key} aria-label={t('capture.listLabel')}>
       {items.length > 0 && (
-        <div className="diple-chips" role="list" data-all={showAll ? '' : undefined}>
+        <div ref={setRow} className="diple-chips" role="list" data-all={showAll ? '' : undefined}>
           {shown.map((item, i) => {
             const kind = PendingList.kindOf(item)
             const locked = PendingList.isLocked(state, item.id)
@@ -246,10 +281,10 @@ export function Strip({ deps, ui, ctl }) {
             )
           })}
           {folded ? (
-            <button type="button" className="diple-chip diple-chip-more" data-diple-more="" data-lit={hiddenLit ? '' : undefined} aria-label={t('send.strip.moreLabel', items.length - MAX_CHIPS)} onClick={() => setShowAll(true)}>
-              +{items.length - MAX_CHIPS}
+            <button type="button" className="diple-chip diple-chip-more" data-diple-more="" data-lit={hiddenLit ? '' : undefined} aria-label={t('send.strip.moreLabel', items.length - cap)} onClick={() => setShowAll(true)}>
+              +{items.length - cap}
             </button>
-          ) : showAll && items.length > MAX_CHIPS + 1 ? (
+          ) : showAll && foldable ? (
             <button type="button" className="diple-chip diple-chip-more" data-diple-less="" aria-label={t('send.strip.lessLabel')} onClick={() => setShowAll(false)}>
               −
             </button>

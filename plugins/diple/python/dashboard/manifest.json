@@ -2,6 +2,6 @@
   "name": "diple",
   "label": "Diple · 圈批",
   "description": "Backend routes for the Diple desktop plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "api": "plugin_api.py"
 }

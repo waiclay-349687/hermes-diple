@@ -47,6 +47,10 @@ export const STRIP_CSS = `
 .diple-strip .diple-list-footer{padding:0;min-height:22px}
 .diple-strip .diple-footer-left{display:flex;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:2px}
 .diple-strip-summary{color:var(--ui-text-tertiary);font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.diple-strip-fit{display:flex;flex-wrap:wrap;flex:1 1 0;min-width:0;height:17px;overflow:hidden}
+.diple-strip-fit::before{content:"";width:0;height:17px}
+.diple-strip .diple-list-footer{gap:6px}
+.diple-strip .diple-footer-actions{flex-wrap:wrap;justify-content:flex-end;row-gap:2px;min-width:0;flex-shrink:1}
 .diple-strip-hint{color:var(--ui-text-secondary);font-size:11.5px;animation:diple-fade 120ms ease-out}
 .diple-strip .diple-undo{padding:0;font-size:11.5px}
 .diple-link{background:none;border:0;padding:0;color:var(--ui-accent);cursor:pointer;font-size:12px;white-space:nowrap}
@@ -87,7 +91,7 @@ export const STRIP_CSS = `
 ${PassageLook.css('.diple-preview-text', { maxHeight: '9.5em' })}
 ${PassageLook.css('.diple-preview-comment', { maxHeight: '6.5em' })}
 /* the send split button and its menu (V2.1 #8; the menu is desktop-kit's) */
-.diple-send-split{position:relative;display:inline-flex;align-items:stretch;gap:1px}
+.diple-send-split{position:relative;display:inline-flex;align-items:stretch;gap:1px;flex:none}
 .diple-send-split>.diple-btn:first-child,.diple-send-split>button:first-child{white-space:nowrap}
 .diple-send-more{display:inline-flex;align-items:center;justify-content:center;width:20px;padding:0;border:0;border-radius:0;background:var(--ui-accent);color:var(--ui-bg-primary,var(--background));cursor:pointer}
 .diple-send-more:hover{background:color-mix(in srgb,var(--ui-accent) 88%,var(--ui-text-primary))}

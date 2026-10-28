@@ -50,11 +50,11 @@ Le plugin a deux moitiés : un plugin de bureau (`plugin.js`) et un petit backen
 
 ### Option A : télécharger une version
 
-1. Téléchargez `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.0.zip` et `diple-python-0.2.0.zip.sha256` depuis la [dernière version](https://github.com/waiclay-349687/hermes-diple/releases), puis vérifiez-les :
+1. Téléchargez `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.1.zip` et `diple-python-0.2.1.zip.sha256` depuis la [dernière version](https://github.com/waiclay-349687/hermes-diple/releases), puis vérifiez-les :
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.1.zip.sha256
    ```
 
 2. Mettez-les en place :
@@ -62,7 +62,7 @@ Le plugin a deux moitiés : un plugin de bureau (`plugin.js`) et un petit backen
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
    ```
 
 3. Activez le backend et redémarrez Hermes Desktop :

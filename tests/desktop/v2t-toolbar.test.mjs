@@ -1,9 +1,9 @@
 // V2-T: the selection toolbar (design §2.3). Driven directly, no plugin build:
 // it is a plain-DOM module with injected rules.
-import test from 'node:test'
+import test, { mock } from 'node:test'
 import assert from 'node:assert/strict'
 
-import { setupDom, tick } from './harness.mjs'
+import { setupDom } from './harness.mjs'
 
 const w = setupDom(`<!doctype html><html><head></head><body>
 <div id="msg"><p id="p">先更新数据库，再删除缓存。第二句话在这里。</p></div>
@@ -23,7 +23,50 @@ function select(from = 0, to = 6) {
 }
 const mouse = (type, button = 0, target = document.getElementById('p'), extra = {}) =>
   target.dispatchEvent(new w.MouseEvent(type, { bubbles: true, cancelable: true, button, ...extra }))
-const frame = () => new Promise((r) => w.requestAnimationFrame(() => r()))
+// A deterministic clock (V3-D2-I): these tests used to wait on the wall clock
+// and failed under a loaded full run ("took 337 ms"). Now frames are a queue
+// the test flushes ("the next frame comes"), and setTimeout runs on node:test's
+// mock timers, advanced by tick(ms). Same meaning, no dependence on load.
+const frames = new Map()
+let frameId = 0
+w.requestAnimationFrame = (fn) => {
+  frames.set(++frameId, fn)
+  return frameId
+}
+w.cancelAnimationFrame = (id) => frames.delete(id)
+// jsdom also fires its own (trusted) selectionchange for each change, on a real
+// timer, so it lands at an arbitrary point of the mock clock and restarts the
+// rest timer. select() already sends the event at the moment of the change:
+// drop jsdom's echo.
+w.addEventListener('selectionchange', (e) => e.isTrusted && e.stopImmediatePropagation(), true)
+const realTimeout = globalThis.setTimeout
+const settle = async () => {
+  await new Promise((r) => realTimeout(r, 0))
+  for (let i = 0; i < 5; i++) await Promise.resolve()
+}
+/** One frame passes: the callbacks queued before it run (not those they queue). */
+async function frame() {
+  const due = [...frames]
+  frames.clear()
+  for (const [, fn] of due) fn(0)
+  await settle()
+}
+/** The clock moves `ms` forward: due timers fire in order, and a frame
+ *  passes every 16 ms of it (as in a browser). */
+async function tick(ms = 0) {
+  await settle()
+  for (let left = ms; left > 0; left -= 16) {
+    mock.timers.tick(Math.min(16, left))
+    await settle()
+    if (left >= 16) await frame()
+  }
+  await settle()
+}
+test.beforeEach(() => {
+  frames.clear()
+  mock.timers.enable({ apis: ['setTimeout'] })
+})
+test.afterEach(() => mock.timers.reset())
 
 function install(over = {}) {
   const activated = []
@@ -44,13 +87,14 @@ test('mouse: appears on the frame after the release (no settle delay), not durin
   select()
   await tick(80)
   assert.equal(shown(), false, 'not while the button is down')
-  const t0 = performance.now()
   mouse('mouseup')
+  assert.equal(frames.size, 1, 'the release asks for the next frame')
   await frame()
-  await frame()
-  assert.equal(shown(), true)
-  // two frames, not a settle timer; the < 50 ms budget is measured in the real app (tests/e2e/v2t-*.mjs)
-  assert.ok(performance.now() - t0 < 150, `took ${performance.now() - t0} ms`)
+  // the very next frame, with the clock not moved at all: no settle timer.
+  // The < 50 ms budget is measured in the real app (tests/e2e/v2t-*.mjs).
+  assert.equal(shown(), true, 'up on the frame after the release')
+  await tick(10_000)
+  assert.equal(shown(), true, 'and no timer takes it down again')
   tb.dispose()
 })
 
@@ -118,11 +162,11 @@ test('keyboard selection: shows once the selection has rested 300 ms', async () 
   const { tb, shown } = install()
   select(0, 3)
   await tick(150)
-  select(0, 5) // still extending
-  await tick(200)
+  select(0, 5) // still extending: the 300 ms start again
+  await tick(299)
   assert.equal(shown(), false, 'still moving')
-  await tick(150)
-  assert.equal(shown(), true)
+  await tick(1)
+  assert.equal(shown(), true, 'exactly 300 ms after the last change')
   tb.dispose()
 })
 

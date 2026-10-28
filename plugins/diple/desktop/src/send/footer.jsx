@@ -196,7 +196,11 @@ export function createFooter({ deps, sending: sendModule, live, dialogs, sendFro
     return (
       <div ref={ref} className="diple-list-footer" data-diple-footer="">
         <div className="diple-footer-left">
-          <span className="diple-strip-summary">{t('send.strip.summary', s.total, s.comments)}</span>
+          {/* the summary yields first in a narrow chat: it wraps under a 0-width
+              strut into a clipped second line, so it hides whole, never cut (V3-D2-I) */}
+          <span className="diple-strip-fit">
+            <span className="diple-strip-summary">{t('send.strip.summary', s.total, s.comments)}</span>
+          </span>
           {extra}
           {info}
         </div>

@@ -1,6 +1,6 @@
 {
   "name": "hermes-diple",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "description": "Diple: a Hermes Desktop plugin to highlight and comment on chat passages and send them to the AI",

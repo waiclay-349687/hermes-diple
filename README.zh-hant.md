@@ -50,11 +50,11 @@
 
 ### 方式 A：下載 release
 
-1. 從[最新 release](https://github.com/waiclay-349687/hermes-diple/releases) 下載 `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.0.zip` 和 `diple-python-0.2.0.zip.sha256`，然後校驗：
+1. 從[最新 release](https://github.com/waiclay-349687/hermes-diple/releases) 下載 `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.1.zip` 和 `diple-python-0.2.1.zip.sha256`，然後校驗：
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.0.zip.sha256
+   shasum -a 256 -c diple-python-0.2.1.zip.sha256
    ```
 
 2. 放到對應位置：
@@ -62,7 +62,7 @@
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.0.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
    ```
 
 3. 啟用後端，然後重新啟動 Hermes 桌面端：

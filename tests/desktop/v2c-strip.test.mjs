@@ -5,7 +5,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { act, cleanupAll, click, fresh, hover, mount, origin, scrolled, sdk, seed, tick, w } from './v2c-rig.mjs'
-import { saveOpenEditor } from './harness.mjs'
+import { loadModule, saveOpenEditor } from './harness.mjs'
 
 test.afterEach(cleanupAll)
 
@@ -48,6 +48,54 @@ test('8 annotations: five chips and “+3”; “+3” shows them all', async ()
   await click(view.q('.diple-clear'))
   await seed(h, 'stored-1', items(8).map((x) => ({ ...x, id: `${x.id}b`, text: `${x.text} 再来` })))
   assert.equal(chips(view).length, 5)
+})
+
+// V3-D2-I: with a review page docked beside it, the chat is often 420–600px
+// wide. The chips fold to "+N" by the room they have (never under one chip);
+// the meta row drops the summary before anything else, and 「发送 N 条 ▾」 never
+// shrinks or clips (the real layout is checked by e2e v21-overflow).
+test('narrow chat: chips fold by width; the summary yields first; send never shrinks', async () => {
+  const { chipCap, CHIP_MIN } = await loadModule('diple', 'plugins/diple/desktop/src/send/strip/strip.jsx').catch(() => ({}))
+  assert.equal(typeof chipCap, 'function', 'chipCap(width, count) is exported')
+  assert.equal(chipCap(0, 8), 5, 'unmeasured: the old rule (five + “+3”)')
+  assert.equal(chipCap(900, 6), 6, 'room for all: “+1” would only hide one chip')
+  assert.equal(chipCap(900, 8), 5)
+  const row = (n) => n * CHIP_MIN + (n - 1) * 4 // n chips and their gaps
+  assert.equal(chipCap(row(3), 3), 3, 'three fit: no fold')
+  assert.equal(chipCap(row(3) - 1, 3), 2, 'one px short: two and “+1” (width, not count, folds it)')
+  assert.equal(chipCap(row(3), 4), 2, 'four do not: two and “+2”')
+  assert.equal(chipCap(CHIP_MIN * 1.5, 4), 1, 'never under one chip')
+  // V3-D2-I regression: three short chips in a 420px chat never fold
+  assert.equal(chipCap(400, 3), 3)
+  assert.equal(chipCap(400, 6), 4, 'six in 400px: four and “+2”')
+  const observers = []
+  const RO = class {
+    constructor(fn) { this.fn = fn; this.els = new Set(); observers.push(this) }
+    observe(el) { this.els.add(el) }
+    unobserve(el) { this.els.delete(el) }
+    disconnect() { this.els.clear() }
+  }
+  const prev = [globalThis.ResizeObserver, w.ResizeObserver]
+  globalThis.ResizeObserver = w.ResizeObserver = RO
+  try {
+    const h = fresh()
+    await seed(h, 'stored-1', items(4))
+    const view = await mount(h)
+    assert.equal(chips(view).length, 4)
+    const row = view.q('.diple-chips')
+    await act(async () => { for (const o of observers) if (o.els.has(row)) o.fn([{ target: row, contentRect: { width: CHIP_MIN * 3, height: 20 } }]) })
+    await tick()
+    assert.equal(chips(view).length, 2, 'folded by width')
+    assert.equal(view.q('[data-diple-more]').textContent, '+2')
+    await click(view.q('[data-diple-more]'))
+    assert.equal(chips(view).length, 4, '“+N” still shows them all')
+  } finally {
+    ;[globalThis.ResizeObserver, w.ResizeObserver] = prev
+  }
+  const css = [...w.document.querySelectorAll('style')].map((x) => x.textContent).join('\n')
+  assert.match(css, /\.diple-strip \.diple-footer-actions\{[^}]*flex-wrap:wrap/, 'the quiet actions wrap before the send button clips')
+  assert.match(css, /\.diple-send-split\{[^}]*flex:none/, 'the send split never shrinks')
+  assert.match(css, /\.diple-strip-fit\{[^}]*height:\d+px[^}]*overflow:hidden/, 'the summary hides whole when it does not fit')
 })
 
 test('hover: a Markdown preview of the text and the comment, no scrolling; uiBus.hover follows', async () => {
@@ -120,13 +168,18 @@ test('editor open / original hovered: the chip shows it', async () => {
   const h = fresh()
   await seed(h, 'stored-1', items(3))
   const view = await mount(h)
-  await act(async () => h.deps.uiBus.editorOpened('i2'))
+  // V3-D2-I #5: the original side (annotator) rightly drops a hover on an id
+  // it has no passage for, on its debounced highlight refresh (a timer). Under
+  // a loaded run that timer used to land between the event and the check. Each
+  // event is now emitted and checked with no macrotask in between (a sync act
+  // flushes React at once; awaiting it only runs microtasks), so no timer can.
+  await act(() => h.deps.uiBus.editorOpened('i2'))
   assert.deepEqual(chips(view).map((c) => c.hasAttribute('data-active')), [false, true, false])
-  await act(async () => h.deps.uiBus.editorClosed('i2'))
+  await act(() => h.deps.uiBus.editorClosed('i2'))
   assert.ok(!chips(view)[1].hasAttribute('data-active'))
-  await act(async () => h.deps.uiBus.hover('i3'))
+  await act(() => h.deps.uiBus.hover('i3'))
   assert.deepEqual(chips(view).map((c) => c.hasAttribute('data-lit')), [false, false, true])
-  await act(async () => h.deps.uiBus.hover(null))
+  await act(() => h.deps.uiBus.hover(null))
   assert.ok(!chips(view)[2].hasAttribute('data-lit'))
 })
 
@@ -134,7 +187,7 @@ test('a lit chip hidden behind “+N” lights the “+N”', async () => {
   const h = fresh()
   await seed(h, 'stored-1', items(8))
   const view = await mount(h)
-  await act(async () => h.deps.uiBus.hover('i7'))
+  await act(() => h.deps.uiBus.hover('i7')) // sync act: no timer in between (see above)
   assert.ok(view.q('[data-diple-more]').hasAttribute('data-lit'))
 })
 

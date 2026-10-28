@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 Planned work is in [ROADMAP.md](ROADMAP.md).
 
+## [0.2.1] - 2026-10-29
+
+A fix for narrow chats, now that previews and other panes often dock beside the chat.
+
+### Fixed
+
+- In a narrow chat, the strip above the composer no longer overflows. The summary hides first, then the chips that do not fit fold into "+N"; **Send N ▾** always stays whole and clickable. Chips fold only when they really do not fit, and hovering a chip no longer moves the transcript.
+
 ## [0.2.0] - 2026-10-27
 
 The selection button and the comment editor now sit where your hand and eyes already are (ADR 0011).
@@ -90,6 +98,7 @@ Compared with the pre-release builds used for testing:
 - Copied text in the display version is made inert, so an `@kind:` inside an annotation is never expanded by the host.
 - The plugin makes no network requests of its own and has no telemetry.
 
-[Unreleased]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/waiclay-349687/hermes-diple/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/waiclay-349687/hermes-diple/releases/tag/v0.1.0
