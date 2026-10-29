@@ -50,11 +50,11 @@
 
 ### Вариант А: скачать выпуск
 
-1. Скачайте `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.1.zip` и `diple-python-0.2.1.zip.sha256` из [последнего выпуска](https://github.com/waiclay-349687/hermes-diple/releases) и проверьте их:
+1. Скачайте `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.2.zip` и `diple-python-0.2.2.zip.sha256` из [последнего выпуска](https://github.com/waiclay-349687/hermes-diple/releases) и проверьте их:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. Разложите их по местам:
@@ -62,7 +62,7 @@
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. Включите бэкенд и перезапустите Hermes Desktop:
@@ -155,6 +155,12 @@ hermes plugins enable diple
 ## Совместимость
 
 Проверено с Hermes Agent **v0.22.5 (2026.9.24)**, коммит `bf0203a` (2026-10-22), на macOS. Нужен Hermes Desktop (одна командная строка не загружает плагины рабочего стола). Другие версии могут работать, но не проверялись; пожалуйста, сообщите о результатах.
+
+## Плагин-компаньон: Diple Docs
+
+[Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) (圈批·文档) — участник семейства для документов: откройте файл Markdown в Hermes Desktop, выделяйте фрагменты, комментируйте их и храните аннотации вместе с файлом. После изменения файла каждая аннотация снова находит свой фрагмент и показывает, отправлена ли она, получен ли ответ или она закрыта.
+
+Если установлены оба плагина, кнопка **Отправить** на странице документа добавляет его аннотации в список к отправке этого плагина для беседы, рядом с аннотациями из чата; они уходят вместе с вашим следующим сообщением, и ИИ отвечает на них теми же нумерованными метками. Diple полностью работает и без него. Это два отдельных плагина с отдельными репозиториями и релизами: ставьте любой из них или оба. Без Diple Diple Docs работает сам по себе, включая **Копировать для ИИ**; Diple нужен только для отправки в чат.
 
 ## Чем отличается
 

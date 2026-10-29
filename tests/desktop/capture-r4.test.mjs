@@ -20,6 +20,24 @@ const ROWS = [
   { row_id: 21, role: 'user', timestamp: 19, text: 'T2' },
   { row_id: 22, role: 'assistant', timestamp: 20, text: '重复输出' }
 ]
+// No wall clock (R11-L): each step waits for its condition, under one loose deadline;
+// a load that is slow cannot fail a step, only a missing state can. The waits left
+// (settle) come before NEGATIVE checks only — a late answer that must change nothing:
+// a slow machine can make them pass vacuously, never fail.
+const DEADLINE_MS = 15000
+async function until(cond, what) {
+  const end = Date.now() + DEADLINE_MS
+  for (;;) {
+    let ok = false
+    try {
+      ok = cond()
+    } catch {}
+    if (ok) return
+    if (Date.now() > end) assert.fail(`timed out waiting for: ${what}`)
+    await tick(5)
+  }
+}
+const settle = () => tick(20)
 const deferred = () => {
   let resolve, reject
   const promise = new Promise((a, b) => { resolve = a; reject = b })
@@ -46,8 +64,8 @@ async function rig() {
   document.getSelection().removeAllRanges()
   document.getSelection().addRange(range)
   h.contributions.find((c) => c.area === 'keybinds' && c.data?.id === 'diple.add').data.run()
-  await tick(30)
   const origin = () => h.ctx.storage.get('list.s1', { items: [] }).items[0].origin
+  await until(() => origin(), 'the capture is stored')
   const complete = (u, a) => h.emit('message.complete', { session_id: 'runtime1', status: 'complete', persisted_turn: { user_row_id: u, final_assistant_row_id: a, row_ids: [u, a] } })
   return { h, gates, origin, complete }
 }
@@ -55,27 +73,35 @@ async function rig() {
 test('XE4-01: T1 pins its rows synchronously, before its history read finishes', async () => {
   const { h, gates, origin, complete } = await rig()
   complete(11, 12)
-  await tick(10)
-  assert.equal(gates.length, 1, 'T1 history read in flight')
+  // synchronous: no await between the completion and these checks
   assert.equal(origin().bind.mode, 'rows', 'pinned and persisted before any history response')
   assert.deepEqual(origin().bind.rows, [11, 12])
+  await until(() => gates.length >= 1, 'T1 history read in flight')
+  assert.equal(gates.length, 1, 'one read for T1')
+  assert.deepEqual(origin().bind.rows, [11, 12], 'still pinned while the read is pending')
   h.dispose()
 })
 
-test('XE4-01: T1 history pending, T2 completes; T1 fails, then T2’s read succeeds → row 12, never 22', async () => {
-  const { h, gates, origin, complete } = await rig()
+/** T1 then T2 complete, each with its history read in flight (gates[0], gates[1]). */
+async function twoTurns({ gates, complete }) {
   complete(11, 12)
-  await tick(10)
+  await until(() => gates.length >= 1, 'T1 history read in flight')
   complete(21, 22)
-  await tick(10)
+  await until(() => gates.length >= 2, 'T2 history read in flight')
   assert.equal(gates.length, 2)
+}
+
+test('XE4-01: T1 history pending, T2 completes; T1 fails, then T2’s read succeeds → row 12, never 22', async () => {
+  const r = await rig()
+  const { h, gates, origin } = r
+  await twoTurns(r)
   gates[0].reject(new Error('T1 history timed out'))
-  await tick(10)
+  await until(() => gates.length >= 3, 'T1’s fallback read (by runtime id)')
   for (const g of gates.slice(2)) g.reject(new Error('runtime-id fallback also down'))
-  await tick(10)
+  await settle()
   assert.deepEqual(origin().bind.rows, [11, 12], 'still pinned to T1')
   gates[1].resolve({ messages: ROWS })
-  await tick(20)
+  await until(() => origin().verified === true, 'T2’s read answered and verified')
   const o = origin()
   assert.ok(!o.verified || o.rowId === 12, `verified against the wrong row: ${o.rowId}`)
   assert.notEqual(o.rowId, 22)
@@ -83,19 +109,17 @@ test('XE4-01: T1 history pending, T2 completes; T1 fails, then T2’s read succe
 })
 
 test('XE4-01: reverse order — T2’s read succeeds first, T1’s late failure/success cannot rebind', async () => {
-  const { h, gates, origin, complete } = await rig()
-  complete(11, 12)
-  await tick(10)
-  complete(21, 22)
-  await tick(10)
+  const r = await rig()
+  const { h, gates, origin } = r
+  await twoTurns(r)
   gates[1].resolve({ messages: ROWS })
-  await tick(20)
+  await until(() => origin().verified === true, 'verified by T2’s read')
   assert.equal(origin().rowId, 12, 'bound to its own turn’s row')
-  assert.equal(origin().verified, true)
+  const n = gates.length
   gates[0].reject(new Error('T1 history timed out late'))
-  await tick(10)
+  await until(() => gates.length > n, 'T1’s fallback read (by runtime id)')
   for (const g of gates.slice(2)) g.resolve({ messages: ROWS.map((r) => (r.row_id === 12 ? { ...r, text: '别的' } : r)) })
-  await tick(20)
+  await settle()
   const o = origin()
   assert.equal(o.rowId, 12, 'a stale write-back never replaces the verified origin')
   assert.equal(o.verified, true)
@@ -103,18 +127,16 @@ test('XE4-01: reverse order — T2’s read succeeds first, T1’s late failure/
 })
 
 test('XE4-01: T1 succeeds while T2’s read is pending; T2’s late answer is dropped', async () => {
-  const { h, gates, origin, complete } = await rig()
-  complete(11, 12)
-  await tick(10)
-  complete(21, 22)
-  await tick(10)
+  const r = await rig()
+  const { h, gates, origin } = r
+  await twoTurns(r)
   gates[0].resolve({ messages: ROWS })
-  await tick(20)
+  await until(() => origin().verified === true, 'verified by T1’s read')
   assert.equal(origin().rowId, 12)
   // T2's read returns history where row 12 no longer matches: its 'never'
   // verdict is for an origin snapshot that is gone, so it is discarded.
   gates[1].resolve({ messages: ROWS.map((r) => (r.row_id === 12 ? { ...r, text: '别的' } : r)) })
-  await tick(20)
+  await settle()
   assert.equal(origin().rowId, 12)
   assert.equal(origin().verified, true)
   h.dispose()

@@ -52,11 +52,11 @@
 
 ### الخيار أ: تنزيل إصدار
 
-1. نزّل `plugin.js` و`plugin.js.sha256` و`diple-python-0.2.1.zip` و`diple-python-0.2.1.zip.sha256` من [أحدث إصدار](https://github.com/waiclay-349687/hermes-diple/releases)، ثم تحقّق منها:
+1. نزّل `plugin.js` و`plugin.js.sha256` و`diple-python-0.2.2.zip` و`diple-python-0.2.2.zip.sha256` من [أحدث إصدار](https://github.com/waiclay-349687/hermes-diple/releases)، ثم تحقّق منها:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. ضعها في أماكنها:
@@ -64,7 +64,7 @@
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. فعّل الواجهة الخلفية وأعد تشغيل Hermes Desktop:
@@ -157,6 +157,12 @@ hermes plugins enable diple
 ## التوافق
 
 اختُبرت مع Hermes Agent **v0.22.5 (2026.9.24)**، الإيداع `bf0203a` (2026-10-22)، على macOS. تتطلب Hermes Desktop (واجهة سطر الأوامر وحدها لا تحمّل إضافات سطح المكتب). قد تعمل إصدارات أخرى لكنها لم تُختبر؛ يُرجى إبلاغنا بما تجده.
+
+## الإضافة الشقيقة: Diple Docs
+
+[Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) (圈批·文档) هي عضو العائلة المخصص للمستندات: افتح ملف Markdown في Hermes Desktop، وظلّل المقاطع وعلّق عليها، واحتفظ بالتعليقات التوضيحية مع الملف. يُعثر على كل تعليق من جديد بعد تغيّر الملف، ويُظهر ما إذا كان قد أُرسل أو أُجيب عنه أو حُلّ.
+
+عند تثبيت الإضافتين معًا، يضع زر **إرسال** في صفحة المستند تعليقاته في قائمة الانتظار الخاصة بهذه الإضافة للمحادثة، بجوار التعليقات المأخوذة من الدردشة؛ فتُرسل مع رسالتك التالية ويجيب عنها الذكاء الاصطناعي بالعلامات المرقّمة نفسها. يعمل Diple بكامل ميزاته من دونها. الإضافتان منفصلتان، لكل منهما مستودعها وإصداراتها: ثبّت إحداهما أو كلتيهما. ومن دون Diple يعمل Diple Docs وحده، بما في ذلك **نسخ للذكاء الاصطناعي**؛ ولا يحتاج إلى Diple إلا الإرسال إلى المحادثة.
 
 ## بماذا تختلف
 

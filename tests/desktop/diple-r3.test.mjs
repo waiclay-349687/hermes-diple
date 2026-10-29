@@ -8,12 +8,13 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { setupDom, loadEntry } from './harness.mjs'
-import { fixture as baseFixture, flush } from './flow-fixture.mjs'
+import { fixture, flush } from './flow-fixture.mjs'
 
 setupDom()
 const M = await loadEntry('diple', 'tests/desktop/fixtures/diple-modules.js')
 const { createHandoffReceiver } = M
-const fixture = (opts) => baseFixture(M, opts)
+// (imported without `as`: the public-export analysis allows no renamed import of a test helper)
+const newFixture = (opts) => fixture(M, opts)
 
 const handoff = (handoffId, itemId = 'r1', text = '同一条标注') => ({
   v: 1,
@@ -31,7 +32,7 @@ const receiver = (f, owner) => createHandoffReceiver({ deps: f.deps, flow: f.flo
 
 // -- XE2-03 ------------------------------------------------------------------------------------
 test('XE2-03 (R3): A’s claim answer arrives after B took over and sent — A stops, one submit, one batch', async () => {
-  const f = fixture({ findUserRow: async () => true })
+  const f = newFixture({ findUserRow: async () => true })
   const gate = defer()
   const reached = defer()
   let n = 0
@@ -65,7 +66,7 @@ test('XE2-03 (R3): A’s claim answer arrives after B took over and sent — A s
 })
 
 test('XE2-03 (R3): a claim answer that took long is checked before anything is added', async () => {
-  const f = fixture()
+  const f = newFixture()
   const claim = f.deps.api.claimHandoff
   f.deps.api.claimHandoff = async (...args) => {
     const res = await claim(...args)
@@ -79,7 +80,7 @@ test('XE2-03 (R3): a claim answer that took long is checked before anything is a
 })
 
 test('XE2-03 (R3): an old holder’s late receipt cannot rewrite the receipt (409)', async () => {
-  const f = fixture()
+  const f = newFixture()
   const r = await receiver(f, 'B')(handoff('h-rcpt'))
   await assert.rejects(f.deps.api.emitHandoffReceipt({ handoffId: 'h-rcpt', owner: 'A', generation: 1, accepted: ['r1'], batchId: 'bOther' }), (e) => e.status === 409)
   assert.equal(f.claimSet.get('h-rcpt').receipt.batchId, r.batchId)
@@ -87,7 +88,7 @@ test('XE2-03 (R3): an old holder’s late receipt cannot rewrite the receipt (40
 
 // -- XE3-01 ------------------------------------------------------------------------------------
 test('XE3-01: the final word whose first POST fails is kept in the outbox and retried until it lands', async () => {
-  const f = fixture({ findUserRow: async () => null, finals: { fail: 1 } })
+  const f = newFixture({ findUserRow: async () => null, finals: { fail: 1 } })
   const r = await receiver(f)(handoff('h-lost'))
   f.expand(r.batchId)
   f.flow.handleEvent({ type: 'error', session_id: 's1', payload: { message: 'context too large' } })
@@ -105,20 +106,20 @@ test('XE3-01: the outbox survives a reload; resume() sends it', async () => {
   const storage = new Map()
   const batches = new Map()
   const claims = new Map()
-  const f = fixture({ storage, batches, claims, findUserRow: async () => null, finals: { fail: 99 } })
+  const f = newFixture({ storage, batches, claims, findUserRow: async () => null, finals: { fail: 99 } })
   const r = await receiver(f)(handoff('h-reload'))
   f.expand(r.batchId)
   f.flow.handleEvent({ type: 'error', session_id: 's1', payload: { message: 'x' } })
   await flush()
   assert.deepEqual(f.settled, [])
-  const g = fixture({ storage, batches, claims, findUserRow: async () => null })
+  const g = newFixture({ storage, batches, claims, findUserRow: async () => null })
   await g.flow.resume()
   await flush()
   assert.deepEqual(g.settled, [{ handoffId: 'h-reload', batchId: r.batchId, delivered: false, reason: 'turn-error' }])
 })
 
 test('XE3-01 / XR3-02: a rebroadcast to the SAME window that finished asks the backend to replay receipt and settled', async () => {
-  const f = fixture({ findUserRow: async () => null, finals: { fail: 1 } })
+  const f = newFixture({ findUserRow: async () => null, finals: { fail: 1 } })
   const rx = receiver(f)
   const r = await rx(handoff('h-same'))
   f.expand(r.batchId)
@@ -137,7 +138,7 @@ test('XE3-01 / XR3-02: a rebroadcast to the SAME window that finished asks the b
 })
 
 test('XE3-01: a new window derives the settled from the batch outcome when no one recorded it for the hand-off', async () => {
-  const f = fixture({ findUserRow: async () => true })
+  const f = newFixture({ findUserRow: async () => true })
   const r = await receiver(f)(handoff('h-derive'))
   f.expand(r.batchId)
   // the outcome was recorded for the batch (another hand-off's final), not this one
@@ -151,7 +152,7 @@ test('XE3-01: a new window derives the settled from the batch outcome when no on
 
 // -- XE3-02 ------------------------------------------------------------------------------------
 test('XE3-02: two sendNow hand-offs queued for one busy session — the merged batch fails, both are settled', async () => {
-  const f = fixture({ busy: true, findUserRow: async () => null })
+  const f = newFixture({ busy: true, findUserRow: async () => null })
   const rx = receiver(f)
   const a = await rx(handoff('h-queue-a', 'ra', '第一条'))
   const b = await rx(handoff('h-queue-b', 'rb', '第二条'))
@@ -178,7 +179,7 @@ test('XE3-02: two sendNow hand-offs queued for one busy session — the merged b
 })
 
 test('XE3-02: two queued hand-offs that go out and are answered are both settled delivered', async () => {
-  const f = fixture({ busy: true, findUserRow: async () => true })
+  const f = newFixture({ busy: true, findUserRow: async () => true })
   const rx = receiver(f)
   await rx(handoff('h-ok-a', 'ra', '第一条'))
   await rx(handoff('h-ok-b', 'rb', '第二条'))
@@ -193,7 +194,7 @@ test('XE3-02: two queued hand-offs that go out and are answered are both settled
 })
 
 test('XE3-02: cancelling a queue holding two hand-offs settles both as cancelled', async () => {
-  const f = fixture({ busy: true })
+  const f = newFixture({ busy: true })
   const rx = receiver(f)
   await rx(handoff('h-c-a', 'ra', '第一条'))
   await rx(handoff('h-c-b', 'rb', '第二条'))
@@ -206,7 +207,7 @@ test('XE3-02: a reload that finds the merged send lost settles both hand-offs', 
   const storage = new Map()
   const batches = new Map()
   const claims = new Map()
-  const f = fixture({ storage, batches, claims, busy: true })
+  const f = newFixture({ storage, batches, claims, busy: true })
   const rx = receiver(f)
   await rx(handoff('h-l-a', 'ra', '第一条'))
   await rx(handoff('h-l-b', 'rb', '第二条'))
@@ -216,7 +217,7 @@ test('XE3-02: a reload that finds the merged send lost settles both hand-offs', 
   const batch = f.submits[0].text.match(/@diple:(\S+)/)[1]
   // the window reloads before the batch expands; the backend lost it
   batches.delete(batch)
-  const g = fixture({ storage, batches, claims })
+  const g = newFixture({ storage, batches, claims })
   await g.flow.resume()
   await flush()
   assert.deepEqual(g.settled.map((x) => [x.handoffId, x.delivered, x.reason]), [['h-l-a', false, 'lost'], ['h-l-b', false, 'lost']])

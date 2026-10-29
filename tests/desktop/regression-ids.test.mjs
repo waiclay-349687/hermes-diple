@@ -4,6 +4,7 @@
 // A refactor may move a test — then it moves the map entry too — never drop
 // the last one for an id. The private tree checks every id and every file; the
 // public tree skips only the ids marked privateOnly.
+// Computed loads reviewed: see the override in publish/public-export-manifest.json.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'

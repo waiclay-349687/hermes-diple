@@ -6,23 +6,24 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { setupDom, loadEntry, tick } from './harness.mjs'
-import { flush, fixture as makeFixture, errors } from './flow-fixture.mjs'
+import { flush, fixture, errors } from './flow-fixture.mjs'
 
 const w = setupDom('<!doctype html><html><body></body></html>')
 const M = await loadEntry('diple', 'tests/desktop/fixtures/diple-modules.js')
 const { createSendFlow, createListStore, createHandoffReceiver, createOriginResolver, rangeToMarkdown, createLive, newBatchId } = M
 const sdk = globalThis.__sdk
-const fixture = (opts) => makeFixture(M, opts)
+// (imported without `as`: the public-export analysis allows no renamed import of a test helper)
+const newFixture = (opts) => fixture(M, opts)
 
 
 // -- XE-01 ---------------------------------------------------------------------
 test('XE-01: a reload after expansion still recovers the items when the turn then fails', async () => {
-  const f = fixture()
+  const f = newFixture()
   f.add()
   const r = await f.flow.start('s1')
   f.expand(r.batchId)
   assert.equal(f.lists.get('s1').items.length, 0, 'expansion clears the list early (fast feedback)')
-  const g = fixture({ storage: f.map, batches: f.bs, now: 101000 })
+  const g = newFixture({ storage: f.map, batches: f.bs, now: 101000 })
   await g.flow.resume()
   await g.flow.handleEvent({ type: 'message.complete', session_id: 's1', payload: { status: 'error', text: 'provider failed' } })
   await flush()
@@ -37,12 +38,12 @@ test('XE-01: after a reload an idle session settles the expanded batch by its pe
     [true, 0],
     [false, 1]
   ]) {
-    const f = fixture()
+    const f = newFixture()
     f.add()
     const r = await f.flow.start('s1')
     f.expand(r.batchId)
     const asked = []
-    const g = fixture({ storage: f.map, batches: f.bs, now: 101000, findUserRow: async (key, batchId) => (asked.push([key, batchId]), found) })
+    const g = newFixture({ storage: f.map, batches: f.bs, now: 101000, findUserRow: async (key, batchId) => (asked.push([key, batchId]), found) })
     await g.flow.resume()
     await flush()
     assert.deepEqual(asked, [['s1', r.batchId]])
@@ -53,7 +54,7 @@ test('XE-01: after a reload an idle session settles the expanded batch by its pe
       assert.ok(g.failed.some((x) => x.id === r.batchId && x.rejected), 'the backend leaves expanded')
     }
     // settled once: a second reload does nothing
-    const h = fixture({ storage: f.map, batches: f.bs, now: 102000, findUserRow: async () => !found })
+    const h = newFixture({ storage: f.map, batches: f.bs, now: 102000, findUserRow: async () => !found })
     await h.flow.resume()
     await flush()
     assert.equal(h.lists.get('s1').items.length, restored)
@@ -61,7 +62,7 @@ test('XE-01: after a reload an idle session settles the expanded batch by its pe
 })
 
 test('XE-01: an expanded batch whose turn never completes is settled by the confirm timer', async () => {
-  const f = fixture({ findUserRow: async () => false })
+  const f = newFixture({ findUserRow: async () => false })
   f.add()
   const r = await f.flow.start('s1')
   f.expand(r.batchId)
@@ -91,7 +92,7 @@ test('XE-02: a temporary-id capture never binds to a row it cannot tell apart', 
 
 // -- XE-03 ---------------------------------------------------------------------
 test('XE-03: "send after reply" keeps the body the user asked to send', async () => {
-  const f = fixture({ busy: true })
+  const f = newFixture({ busy: true })
   f.add()
   const r = await f.flow.start('s1', { useDraft: true })
   assert.equal(r.queued, true)
@@ -104,7 +105,7 @@ test('XE-03: "send after reply" keeps the body the user asked to send', async ()
 })
 
 test('XE-03: a hand-off queued for later still sends without the composer text', async () => {
-  const f = fixture({ busy: true })
+  const f = newFixture({ busy: true })
   f.add()
   await f.flow.start('s1', { body: '' })
   f.setBusy(false)
@@ -119,7 +120,7 @@ test('XE-03: a hand-off queued for later still sends without the composer text',
 const handoff = { v: 1, handoffId: 'handoff-123', targetSessionId: 's1', items: [{ origin: { plugin: 'diple-docs', itemId: 'r1', revision: 1, path: '/a.md', line: 1 }, text: '原文', comment: '意见' }] }
 
 test('XE-04: a finished hand-off replays its stored receipt in a new window', async () => {
-  const f = fixture()
+  const f = newFixture()
   const first = await createHandoffReceiver({ deps: f.deps, flow: f.flow, sleep: async () => {}, now: f.now })(handoff)
   assert.equal(first.handled, true)
   // the review side missed that broadcast and rebroadcasts to a reloaded window
@@ -132,7 +133,7 @@ test('XE-04: a finished hand-off replays its stored receipt in a new window', as
 
 test('XE-04: a claim whose window died before the receipt is finished by a later window', async () => {
   const receipts = { fail: true }
-  const f = fixture({ receipts })
+  const f = newFixture({ receipts })
   await createHandoffReceiver({ deps: f.deps, flow: f.flow, sleep: async () => {}, now: f.now })(handoff)
   assert.equal(f.emitted.length, 0, 'claimed, items added, receipt never reached the backend')
   receipts.fail = false
@@ -147,7 +148,7 @@ test('XE-04: a claim whose window died before the receipt is finished by a later
 
 // -- XE-05 (fixed in W3; confirm) ---------------------------------------------------
 test('XE-05: a new revision updates its card; another review item with the same text is kept', async () => {
-  const f = fixture()
+  const f = newFixture()
   const receiver = createHandoffReceiver({ deps: f.deps, flow: f.flow, sleep: async () => {}, now: f.now })
   const mk = (h, itemId, revision, line, comment) => ({ v: 1, handoffId: h, targetSessionId: 's1', items: [{ origin: { plugin: 'diple-docs', itemId, revision, path: '/a.md', line }, text: '重复原文', comment }] })
   await receiver(mk('handoff-a', 'r1', 1, 1, '旧意见'))
@@ -164,7 +165,7 @@ test('XE-05: a new revision updates its card; another review item with the same 
 
 // -- XE-06 ---------------------------------------------------------------------
 test('XE-06: cancelling the queue while the drain waits for idle sends nothing', async () => {
-  const f = fixture({ busy: true })
+  const f = newFixture({ busy: true })
   f.add()
   await f.flow.start('s1')
   let release
@@ -184,7 +185,7 @@ test('XE-06: cancelling the queue while the drain waits for idle sends nothing',
 })
 
 test('XE-06: cancelling while the batch is being registered sends nothing', async () => {
-  const f = fixture({ busy: true })
+  const f = newFixture({ busy: true })
   f.add()
   await f.flow.start('s1')
   f.setBusy(false)
@@ -207,7 +208,7 @@ test('XE-06: cancelling while the batch is being registered sends nothing', asyn
 test('XE-07: after a reload an unrelated answer is never checked against an old batch', async () => {
   const old = { batchId: 'oldbatch', status: 'expanded', sessionId: 's1', expandedAt: 50, items: [{ comment: '必须回应', text: 'x' }] }
   const asked = []
-  const f = fixture({ batches: new Map([['oldbatch', old]]), findUserRow: async (key, batchId, rowId) => (asked.push([batchId, rowId]), false) })
+  const f = newFixture({ batches: new Map([['oldbatch', old]]), findUserRow: async (key, batchId, rowId) => (asked.push([batchId, rowId]), false) })
   await f.flow.handleEvent({ type: 'message.start', session_id: 's1', payload: {} })
   await f.flow.handleEvent({ type: 'message.complete', session_id: 's1', payload: { status: 'complete', text: '全新的普通问题的回复', persisted_turn: { user_row_id: 999 } } })
   assert.deepEqual(asked, [['oldbatch', 999]])
@@ -217,14 +218,14 @@ test('XE-07: after a reload an unrelated answer is never checked against an old 
 
 test('XE-07: after a reload the answer of the turn that carried the batch is checked', async () => {
   const old = { batchId: 'oldbatch', status: 'expanded', sessionId: 's1', expandedAt: 50, items: [{ comment: '必须回应', text: 'x' }] }
-  const f = fixture({ batches: new Map([['oldbatch', old]]), findUserRow: async (key, batchId, rowId) => rowId === 999 })
+  const f = newFixture({ batches: new Map([['oldbatch', old]]), findUserRow: async (key, batchId, rowId) => rowId === 999 })
   await f.flow.handleEvent({ type: 'message.complete', session_id: 's1', payload: { status: 'complete', text: '回答', persisted_turn: { user_row_id: 999 } } })
   assert.equal(f.answerCalls.length, 1)
   assert.equal(f.flow.notices.get('s1')[0].kind, 'none')
 })
 
 test('XE-07: a persisted turn whose user row does not carry the batch does not confirm it', async () => {
-  const f = fixture({ findUserRow: async (key, batchId, rowId) => rowId === 42 })
+  const f = newFixture({ findUserRow: async (key, batchId, rowId) => rowId === 42 })
   f.add()
   const r = await f.flow.start('s1')
   f.expand(r.batchId)

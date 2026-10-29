@@ -114,6 +114,13 @@ function ReceivedBody({ deps, open, t }) {
 function ConfirmTarget({ open, dialogs, t }) {
   const title = open.title || t('capture.otherSession')
   const Confirm = typeof SDK.ConfirmDialog === 'function' || (SDK.ConfirmDialog && typeof SDK.ConfirmDialog === 'object') ? SDK.ConfirmDialog : null
+  // focus on OK without scrolling anything (not autoFocus: R11-L). Once the box is in
+  // the page (a host dialog may portal it a render later), in an effect, which runs
+  // after the dialog's own initial focus: OK keeps the focus.
+  const [box, setBox] = useState(null)
+  useEffect(() => {
+    box?.querySelector('[data-diple-confirm-ok]')?.focus({ preventScroll: true })
+  }, [box])
   if (Confirm) {
     return (
       <Confirm
@@ -130,13 +137,13 @@ function ConfirmTarget({ open, dialogs, t }) {
   }
   return (
     <Modal open onClose={() => dialogs.answer(false)} title={t('send.cross.title')}>
-      <div className="diple-confirm" data-diple-confirm-target={open.key}>
+      <div ref={setBox} className="diple-confirm" data-diple-confirm-target={open.key}>
         <p className="diple-confirm-body">{t('send.cross.body', title)}</p>
         <div className="diple-confirm-actions">
           <Btn variant="ghost" data-diple-confirm-cancel="" onClick={() => dialogs.answer(false)}>
             {t('send.cross.cancel')}
           </Btn>
-          <Btn variant="default" data-diple-confirm-ok="" autoFocus onClick={() => dialogs.answer(true)}>
+          <Btn variant="default" data-diple-confirm-ok="" onClick={() => dialogs.answer(true)}>
             {t('send.cross.confirm')}
           </Btn>
         </div>

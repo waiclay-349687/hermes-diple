@@ -135,7 +135,8 @@ export const CAPTURE_CSS = `
 .diple-preview-note{margin-inline-start:auto;padding-inline-end:4px;font-size:11px;color:var(--ui-text-quaternary,var(--ui-text-tertiary))}
 
 /* ── back to the composer ── */
-.diple-return{position:fixed;z-index:35;transform:translate(-50%,-100%);display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid var(--ui-stroke-secondary);border-radius:var(--radius-md);background:color-mix(in srgb,var(--ui-bg-elevated) 96%,transparent);box-shadow:var(--shadow-md);color:var(--ui-text-secondary);font:12px/1 var(--dt-font-sans,system-ui,sans-serif);cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.diple-return{position:fixed;z-index:47;transform:translate(-50%,-100%);display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid var(--ui-stroke-secondary);border-radius:var(--radius-md);background:color-mix(in srgb,var(--ui-bg-elevated) 96%,transparent);box-shadow:var(--shadow-md);color:var(--ui-text-secondary);font:12px/1 var(--dt-font-sans,system-ui,sans-serif);cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+/* above the open editor (45): its click commits that editor, then goes back (R11-F) */
 .diple-return[hidden]{display:none}
 .diple-return[data-enter]{animation:diple-rise-in .16s ease-out both}
 .diple-return:hover{color:var(--ui-text-primary)}

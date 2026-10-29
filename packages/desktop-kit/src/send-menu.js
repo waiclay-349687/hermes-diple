@@ -7,7 +7,19 @@
 //     sections: [{ key, title?, items: [{ key, label, detail?, checked?, disabled?,
 //                  keep?, onSelect, attrs? }] }]
 //       checked: a radio item (a scope); keep: selecting it leaves the menu open
-//     onClose(): Esc, Tab, a click outside, or after an item without `keep`
+//     onClose(reason): reason is 'escape' | 'tab' | 'select' | 'outside' | 'scroll'
+//       escape: Esc anywhere while open (caught on the document, capture phase, and
+//         swallowed: the topmost menu closes, nothing under it sees that Esc). The
+//         stack of open menus is the window's (window[Symbol.for(MENUS)]), shared by
+//         every bundle of this kit (each plugin bundles its own): one Esc closes one
+//         menu of either plugin, through one document listener. Not an Esc that ends an
+//         IME composition (isComposing / keyCode 229), nor one whose focus is in a host
+//         modal ([aria-modal="true"], [role="dialog"]) that does not hold the menu: those
+//         are the IME's / the host's (ADR 0014, supplement);
+//       tab: Tab inside the menu; select: an item without `keep`;
+//       outside: a mouse press outside menu and trigger; scroll: its clipping box scrolled.
+//       Callers give focus back to the trigger only for escape / select / tab; after
+//       outside / scroll focus stays where the user put it (a drag-select goes on).
 //     attrs: data-* / aria-* put on the menu element (the caller's test hooks)
 //   Focus goes to the item marked `checked` in the first section with actions
 //   (the default target), else to the first enabled item; ↑ ↓ Home End move,
@@ -24,6 +36,46 @@
 import { createElement as h, useEffect, useLayoutEffect, useRef } from 'react'
 
 const M = 4
+// The open menus of a window, newest last: Esc closes only the newest one. On the
+// window under a registered symbol, so that the two plugins' bundles share it (a
+// module-level array would be one stack per bundle, and one Esc would close both).
+// Its `listener` is the document's one Esc listener, added by whichever bundle opens
+// the first menu and removed when the last one closes.
+const MENUS = 'diple.desktop-kit.menus'
+const KEY = Symbol.for(MENUS)
+const stackOf = (win) => (win[KEY] ??= [])
+const MODAL = '[aria-modal="true"],[role="dialog"]'
+/** The one document Esc listener (any bundle's copy of it does the same). */
+function escOnDocument(e) {
+  const doc = e.currentTarget
+  const top = doc?.defaultView?.[KEY]?.at(-1)
+  const el = top?.ref.current
+  if (e.key !== 'Escape' || !el) return
+  if (e.isComposing || e.keyCode === 229) return // the IME's: it ends the composition
+  const modal = doc.activeElement?.closest?.(MODAL)
+  if (modal && !modal.contains(el)) return // focus is in a host modal above the menu: its Esc
+  e.preventDefault()
+  e.stopImmediatePropagation()
+  top.close('escape')
+}
+function openMenu(doc, entry) {
+  const win = doc?.defaultView
+  if (!win) return () => {}
+  const stack = stackOf(win)
+  if (!stack.listener) {
+    stack.listener = escOnDocument
+    doc.addEventListener('keydown', stack.listener, true)
+  }
+  stack.push(entry)
+  return () => {
+    const i = stack.lastIndexOf(entry)
+    if (i >= 0) stack.splice(i, 1)
+    if (!stack.length && stack.listener) {
+      doc.removeEventListener('keydown', stack.listener, true)
+      stack.listener = null
+    }
+  }
+}
 
 /** The visible box the menu must stay inside: the window cut by every clipping ancestor. */
 function clipBox(el) {
@@ -113,17 +165,24 @@ export function SendMenu({ label, sections = [], onClose, attrs = {} }) {
     if (ref.current) place(ref.current)
   }, [shape])
 
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+  useEffect(() => openMenu(ref.current?.ownerDocument ?? globalThis.document, { ref, close: (why) => closeRef.current?.(why) }), [])
+
   useEffect(() => {
     const doc = ref.current?.ownerDocument ?? globalThis.document
     const away = (e) => {
-      if (ref.current && !ref.current.contains(e.target) && !e.target?.closest?.('[data-send-menu-trigger]')) onClose?.()
+      if (ref.current && !ref.current.contains(e.target) && !e.target?.closest?.('[data-send-menu-trigger]')) onClose?.('outside')
     }
     // a menu that left its box (data-fixed) would float off its trigger when the box scrolls
     // (focusing an item never scrolls a box: every focus() here passes preventScroll)
     const scrolled = (e) => {
       const root = ref.current
-      if (root?.hasAttribute('data-fixed') && e.target !== root && e.target?.contains?.(root)) onClose?.()
+      if (root?.hasAttribute('data-fixed') && e.target !== root && e.target?.contains?.(root)) onClose?.('scroll')
     }
+    // Esc wherever focus is (a press on a disabled item leaves it on <body>) is caught
+    // first by the window's one listener (openMenu), so a draft popover under the menu
+    // does not also take it as "discard"
     doc.addEventListener('mousedown', away, true)
     doc.addEventListener('scroll', scrolled, true)
     return () => {
@@ -143,17 +202,16 @@ export function SendMenu({ label, sections = [], onClose, attrs = {} }) {
     else if (e.key === 'ArrowUp') go(i - 1)
     else if (e.key === 'Home') go(0)
     else if (e.key === 'End') go(items.length - 1)
-    else if (e.key === 'Escape' || e.key === 'Tab') {
-      if (e.key === 'Escape') e.preventDefault()
+    else if (e.key === 'Tab') {
       e.stopPropagation()
-      onClose?.()
+      onClose?.('tab')
     }
   }
 
   const select = (it) => {
     if (it.disabled) return
     it.onSelect?.()
-    if (!it.keep) onClose?.()
+    if (!it.keep) onClose?.('select')
   }
 
   return h(

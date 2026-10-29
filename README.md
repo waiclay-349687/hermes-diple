@@ -50,11 +50,11 @@ The plugin has two halves: a desktop plugin (`plugin.js`) and a small Python bac
 
 ### Option A: download a release
 
-1. Download `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.1.zip` and `diple-python-0.2.1.zip.sha256` from the [latest release](https://github.com/waiclay-349687/hermes-diple/releases), and check them:
+1. Download `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.2.zip` and `diple-python-0.2.2.zip.sha256` from the [latest release](https://github.com/waiclay-349687/hermes-diple/releases), and check them:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. Put them in place:
@@ -62,7 +62,7 @@ The plugin has two halves: a desktop plugin (`plugin.js`) and a small Python bac
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. Enable the backend and restart Hermes Desktop:
@@ -155,6 +155,12 @@ The main ones (full list with reasons in [docs/known-limitations.md](docs/known-
 ## Compatibility
 
 Tested with Hermes Agent **v0.22.5 (2026.9.24)**, commit `bf0203a` (2026-10-22), on macOS. It needs Hermes Desktop (the CLI alone does not load desktop plugins). Other versions may work but have not been tested; please report what you find.
+
+## Companion: Diple Docs
+
+[Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) (圈批·文档) is the document member of the family: open a Markdown file in Hermes Desktop, highlight passages and comment on them, and keep the annotations with the file. Each one is found again after the file changes and shows whether it was sent, answered or resolved.
+
+With both plugins installed, **Send** on the document page puts its annotations into this plugin's pending list for the conversation, next to the ones taken in the chat; they go out with your next message and the AI answers them with the same numbered markers. Diple works fully without it. The two are separate plugins with separate repositories and releases: install either or both. Without Diple, Diple Docs works on its own, **Copy for AI** included; only sending to the chat needs Diple.
 
 ## How this differs
 

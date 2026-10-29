@@ -1,5 +1,6 @@
 // Cross-cutting checks for the desktop plugin: i18n parity, no stray
 // Chinese literals, bundle externals.
+// Computed loads reviewed: see the override in publish/public-export-manifest.json.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'

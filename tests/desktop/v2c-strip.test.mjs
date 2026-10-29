@@ -19,6 +19,17 @@ const items = (n) =>
 
 const chips = (view) => view.qa('[data-diple-chip]')
 
+// Items whose passages ARE on the page (message 101-1-assistant of the rig), one
+// distinct passage each. The original side (annotator) drops a hover or an open
+// editor on an id it has no passage for, on its debounced highlight refresh (a
+// timer that a loaded run lands anywhere): with passages it has nothing to drop,
+// so the hover/active checks below hold whenever that refresh runs.
+const PASSAGES = ['缓存要先', '更新数据库', '再删除缓存', '并发写', '的时候', '可以延迟', '延迟双删', '双删']
+const withPassages = (list) =>
+  list.map((it, i) => ({ ...it, origin: origin(1, { messageId: '101-1-assistant', anchor: { text: PASSAGES[i] } }), text: PASSAGES[i] }))
+// a highlight refresh is pending or due: let it run (and React render what it changed)
+const settleMarks = () => act(async () => tick(260))
+
 test('3 annotations: three numbered chips, summary, the four actions', async () => {
   const h = fresh()
   await seed(h, 'stored-1', items(3))
@@ -166,28 +177,37 @@ test('a real capture: the chip goes back to the original text through the locate
 
 test('editor open / original hovered: the chip shows it', async () => {
   const h = fresh()
-  await seed(h, 'stored-1', items(3))
+  // V3-D2-I #5 (made deterministic): the items' passages are on the page, so the
+  // annotator keeps the hover through any highlight refresh (see withPassages). The
+  // refresh is let run before each check, where it used to race it.
+  await seed(h, 'stored-1', withPassages(items(3)))
   const view = await mount(h)
-  // V3-D2-I #5: the original side (annotator) rightly drops a hover on an id
-  // it has no passage for, on its debounced highlight refresh (a timer). Under
-  // a loaded run that timer used to land between the event and the check. Each
-  // event is now emitted and checked with no macrotask in between (a sync act
-  // flushes React at once; awaiting it only runs microtasks), so no timer can.
-  await act(() => h.deps.uiBus.editorOpened('i2'))
+  await settleMarks()
+  await act(async () => h.deps.uiBus.editorOpened('i2'))
+  await settleMarks()
   assert.deepEqual(chips(view).map((c) => c.hasAttribute('data-active')), [false, true, false])
-  await act(() => h.deps.uiBus.editorClosed('i2'))
+  await act(async () => h.deps.uiBus.editorClosed('i2'))
+  await settleMarks()
   assert.ok(!chips(view)[1].hasAttribute('data-active'))
-  await act(() => h.deps.uiBus.hover('i3'))
+  await act(async () => h.deps.uiBus.hover('i3'))
+  await settleMarks()
   assert.deepEqual(chips(view).map((c) => c.hasAttribute('data-lit')), [false, false, true])
-  await act(() => h.deps.uiBus.hover(null))
+  // a list change schedules another refresh: the hover still holds after it
+  await act(async () => h.deps.lists.dispatch('stored-1', { type: 'editComment', id: 'i1', comment: '再改一下' }))
+  await settleMarks()
+  assert.deepEqual(chips(view).map((c) => c.hasAttribute('data-lit')), [false, false, true])
+  await act(async () => h.deps.uiBus.hover(null))
+  await settleMarks()
   assert.ok(!chips(view)[2].hasAttribute('data-lit'))
 })
 
 test('a lit chip hidden behind “+N” lights the “+N”', async () => {
   const h = fresh()
-  await seed(h, 'stored-1', items(8))
+  await seed(h, 'stored-1', withPassages(items(8)))
   const view = await mount(h)
-  await act(() => h.deps.uiBus.hover('i7')) // sync act: no timer in between (see above)
+  await settleMarks()
+  await act(async () => h.deps.uiBus.hover('i7'))
+  await settleMarks()
   assert.ok(view.q('[data-diple-more]').hasAttribute('data-lit'))
 })
 

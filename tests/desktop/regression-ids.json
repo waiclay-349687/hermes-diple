@@ -5,10 +5,14 @@
   "tests/desktop/handoff-r4.test.mjs",
   "tests/desktop/handoff-r5.test.mjs",
   "tests/desktop/handoff-r6.test.mjs",
+  "tests/desktop/public-export-r11.test.mjs",
+  "tests/desktop/public-export-split.test.mjs",
   "tests/desktop/review-md-map.test.mjs",
   "tests/desktop/review-r5.test.mjs",
   "tests/desktop/review-relocate.perf.mjs",
   "tests/desktop/review.test.mjs",
+  "tests/desktop/v3d3-matrix-manifest.test.mjs",
+  "tests/desktop/v3d3-r11-draft.test.mjs",
   "tests/python/test_handoff_r6.py",
   "tests/python/test_review_backend.py",
   "tests/python/test_review_list.py",
@@ -39,8 +43,18 @@
   "XR-04",
   "XR-06",
   "XR-07",
+  "XR11-06",
+  "XR11-07",
+  "XR11-11",
   "XR2-01",
-  "XR3-01"
+  "XR3-01",
+  "XR11-01",
+  "XR11-02",
+  "XR11-03",
+  "XR11-04",
+  "XR11-05",
+  "XR11-09",
+  "XR11-10"
  ],
  "ids": {
   "S45": [
@@ -281,6 +295,19 @@
    "packages/core/test/send-size.test.mjs",
    "tests/desktop/sending.test.mjs"
   ],
+  "XR11-06": [
+   "tests/desktop/public-export-r11.test.mjs",
+   "tests/desktop/public-export-split.test.mjs"
+  ],
+  "XR11-07": [
+   "tests/desktop/public-export-r11.test.mjs"
+  ],
+  "XR11-08": [
+   "tests/desktop/v3d3-focus-guard.test.mjs"
+  ],
+  "XR11-11": [
+   "tests/desktop/public-export-r11.test.mjs"
+  ],
   "XR2-01": [
    "tests/desktop/review.test.mjs",
    "tests/python/test_review_r2.py"
@@ -328,6 +355,28 @@
   ],
   "XV9-01": [
    "tests/desktop/v2x-drafts.test.mjs"
+  ],
+  "XR11-01": [
+   "tests/desktop/v3d3-r11-draft.test.mjs"
+  ],
+  "XR11-02": [
+   "tests/desktop/v3d3-r11-draft.test.mjs"
+  ],
+  "XR11-03": [
+   "tests/desktop/v3d3-r11-draft.test.mjs"
+  ],
+  "XR11-04": [
+   "tests/desktop/v3d3-r11-draft.test.mjs"
+  ],
+  "XR11-05": [
+   "tests/desktop/v3d3-r11-draft.test.mjs"
+  ],
+  "XR11-09": [
+   "tests/desktop/v3d3-matrix-manifest.test.mjs"
+  ],
+  "XR11-10": [
+   "tests/desktop/review.test.mjs",
+   "tests/desktop/v3d3-r11-draft.test.mjs"
   ],
   "XV9-02": [
    "tests/desktop/contracts.test.mjs",

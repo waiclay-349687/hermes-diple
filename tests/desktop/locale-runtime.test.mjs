@@ -9,6 +9,7 @@
 //     the pin or navigator.language
 //   - settings: invalid values → defaults, set persists then notifies once,
 //     snapshots stable; the host storage's corrupt JSON → defaults
+// Computed loads reviewed: see the override in publish/public-export-manifest.json.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 

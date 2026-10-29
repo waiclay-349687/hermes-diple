@@ -749,6 +749,16 @@ test('W3 XE-05: a review item whose card is being sent is not overwritten nor co
   assert.equal(st.items[0].comment, '第一版')
 })
 
+// Wait for a condition instead of a fixed sleep: the timers under test run on wall
+// time, which a loaded machine stretches; `within` is only a generous deadline.
+async function until(cond, what, { within = 15_000, step = 25 } = {}) {
+  const end = Date.now() + within
+  while (!cond()) {
+    if (Date.now() > end) throw new Error(`timed out after ${within} ms waiting for ${what}`)
+    await act(async () => tick(step))
+  }
+}
+
 test('W3 hand-off sendNow from the review page: composer not on screen → the session is opened and the send retried', async () => {
   const h = fresh()
   const opened = []
@@ -760,7 +770,8 @@ test('W3 hand-off sendNow from the review page: composer not on screen → the s
   sdk.submitResult = false
   try {
     await h.fire('plugin.diple-docs.handoff', handoff({ handoffId: 'h-reveal', sendNow: true }), '')
-    await act(async () => tick(1700))
+    const receiptOf = () => h.backend.events.find((e) => e.path === '/events/handoff-receipt' && e.body.handoffId === 'h-reveal')
+    await until(() => receiptOf() && sdk.submits.filter((x) => x.text.includes('@diple:')).length >= 2, 'the retried send and its receipt')
     assert.deepEqual(opened, ['stored-1'])
     const receipt = h.backend.events.find((e) => e.path === '/events/handoff-receipt' && e.body.handoffId === 'h-reveal')
     assert.ok(receipt?.body.batchId, 'the retried send carries a batch')
@@ -776,10 +787,11 @@ test('hand-off for a session this window is not showing: claims only after a pau
   sdk.state.focusedStoredSessionId.set('stored-9')
   const t0 = Date.now()
   await h.fire('plugin.diple-docs.handoff', handoff({ handoffId: 'h-late1' }), '')
-  await act(async () => tick(1600))
-  const claim = h.backend.calls.find((c) => c.path === '/handoff/h-late1/claim')
-  assert.ok(claim, 'claimed eventually')
-  assert.ok(Date.now() - t0 >= 1500)
+  const claimOf = () => h.backend.calls.find((c) => c.path === '/handoff/h-late1/claim')
+  await act(async () => tick(0))
+  assert.equal(claimOf(), undefined, 'not claimed at once')
+  await until(claimOf, 'the claim')
+  assert.ok(Date.now() - t0 >= 1500, 'only after the pause')
   sdk.state.focusedStoredSessionId.set('stored-1')
   const view = await mount(h)
   assert.equal(view.qa('[data-diple-id]').length, 2, 'items in the target session list')

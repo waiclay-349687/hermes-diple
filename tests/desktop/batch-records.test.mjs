@@ -11,7 +11,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { setupDom, loadEntry } from './harness.mjs'
+import { ROOT, setupDom, loadEntry } from './harness.mjs'
 import { fixture, flush } from './flow-fixture.mjs'
 import { createSentMarks } from '../../plugins/diple/desktop/src/capture/mark-states.js'
 import { createBatchCatalog, MAX_LOCAL_BATCHES } from '../../plugins/diple/desktop/src/shared/batch-catalog.js'
@@ -160,7 +160,6 @@ test('reload with only records an older version wrote (no `at`, extra fields): r
 test('L2: only the catalog knows the layout — no other production module spells batch.<id> or batches.index', async () => {
   const fs = await import('node:fs')
   const path = await import('node:path')
-  const { ROOT } = await import('./harness.mjs')
   const src = path.join(ROOT, 'plugins/diple/desktop/src')
   const offenders = []
   const walk = (d) => {

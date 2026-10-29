@@ -2,18 +2,17 @@
 
 This file and the [issues](https://github.com/waiclay-349687/hermes-diple/issues) are how the project is tracked. Both are updated with every push to this repository.
 
-Status words: **in progress**, **planned**, **designing** (being shaped, discussion welcome, nothing built yet), **discussing** (no decision yet), **blocked** (waits for the host), **tracking** (an upstream change we follow).
+Status words: **in progress**, **planned**, **designing** (being shaped, discussion welcome, nothing built yet), **discussing** (no decision yet), **blocked** (waits for the host), **tracking** (an upstream change we follow), **moved** (now tracked in the other repository).
 
-What has already shipped is in [CHANGELOG.md](CHANGELOG.md).
+What has already shipped is in [CHANGELOG.md](CHANGELOG.md). The document side of the family, [Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs), has its own roadmap: [Diple Docs's ROADMAP](https://github.com/waiclay-349687/hermes-diple-docs/blob/main/ROADMAP.md).
 
 ## Now
 
-Being built for the next minor version, after v0.2.1.
+Being built for the next minor version, after v0.2.2.
 
 | Item | Status | Issue |
 | --- | --- | --- |
-| Companion Markdown plugin: collapsible annotation list, a status bar in the page margin, previous / next unresolved, a bottom bar in narrow windows | in progress | [#2](https://github.com/waiclay-349687/hermes-diple/issues/2) |
-| The comment editor opens directly below the selected passage: shipped for chat in v0.2.0; the companion Markdown plugin is still being designed, waiting for confirmation | designing | [#3](https://github.com/waiclay-349687/hermes-diple/issues/3) |
+| Fixes from a full check of what every click and key does in the chat, kept small (see the CHANGELOG's Unreleased section when they land) | in progress | — |
 
 ## Next
 
@@ -23,10 +22,9 @@ Being built for the next minor version, after v0.2.1.
 | Four optional intents for a comment: question, disagree, change this, unsure | designing | [#13](https://github.com/waiclay-349687/hermes-diple/issues/13) |
 | Cheap, explainable checks on each response: too short, quote not found in the passage | designing | [#14](https://github.com/waiclay-349687/hermes-diple/issues/14) |
 | The AI's response shown under each annotation, with a per-batch summary | designing | [#15](https://github.com/waiclay-349687/hermes-diple/issues/15) |
-| Companion Markdown plugin: suggested edits, applied by code or by the AI and then checked | planned | [#16](https://github.com/waiclay-349687/hermes-diple/issues/16) |
+| Suggested edits for Markdown documents: now tracked in [Diple Docs's repository](https://github.com/waiclay-349687/hermes-diple-docs/issues) | moved | [#16](https://github.com/waiclay-349687/hermes-diple/issues/16) |
 | Append-only export of annotations to Markdown notes | planned | [#18](https://github.com/waiclay-349687/hermes-diple/issues/18) |
 | First-run onboarding, including the keyboard shortcuts (the surfaces you work in show no keycaps) | planned | [#22](https://github.com/waiclay-349687/hermes-diple/issues/22) |
-| Publish the companion plugin for reviewing Markdown documents (annotations kept per file, sent through this plugin's pending list); the receiving side of its hand-off protocol is already in this repository | planned | — |
 
 ## Later
 
@@ -78,7 +76,6 @@ From the internal design review (D1, codebase-design). No user-visible change; d
 
 | Item | Status | Issue |
 | --- | --- | --- |
-| Document selections: one projection that converts both ways between the rendered text and the Markdown source (companion plugin) | planned | — |
-| Companion plugin backend: a safe-read module separate from the SQLite lifecycle | planned | — |
 | A shared adapter for the optional SDK display components (not a general UI module) | discussing | — |
-| Companion plugin: one interface for a document's session and lifecycle | planned | — |
+
+The document page's own design debt is listed in [Diple Docs's ROADMAP](https://github.com/waiclay-349687/hermes-diple-docs/blob/main/ROADMAP.md).

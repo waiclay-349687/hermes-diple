@@ -50,11 +50,11 @@ El plugin tiene dos mitades: un plugin de escritorio (`plugin.js`) y un pequeño
 
 ### Opción A: descargar una versión
 
-1. Descarga `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.1.zip` y `diple-python-0.2.1.zip.sha256` desde la [última versión](https://github.com/waiclay-349687/hermes-diple/releases) y verifícalos:
+1. Descarga `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.2.zip` y `diple-python-0.2.2.zip.sha256` desde la [última versión](https://github.com/waiclay-349687/hermes-diple/releases) y verifícalos:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. Colócalos en su sitio:
@@ -62,7 +62,7 @@ El plugin tiene dos mitades: un plugin de escritorio (`plugin.js`) y un pequeño
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. Activa el backend y reinicia Hermes Desktop:
@@ -155,6 +155,12 @@ Las principales (lista completa con sus motivos en [docs/known-limitations.md](d
 ## Compatibilidad
 
 Probado con Hermes Agent **v0.22.5 (2026.9.24)**, commit `bf0203a` (2026-10-22), en macOS. Necesita Hermes Desktop (la CLI sola no carga plugins de escritorio). Otras versiones pueden funcionar pero no se han probado; cuéntanos qué encuentras.
+
+## Plugin compañero: Diple Docs
+
+[Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) (圈批·文档) es el miembro de la familia dedicado a los documentos: abre un archivo Markdown en Hermes Desktop, resalta y comenta pasajes, y guarda las anotaciones con el archivo. Cada una se vuelve a encontrar cuando el archivo cambia y muestra si se envió, si la IA respondió o si está resuelta.
+
+Con los dos plugins instalados, **Enviar** en la página del documento pone sus anotaciones en la lista de pendientes de este plugin para la conversación, junto a las tomadas en el chat; salen con tu próximo mensaje y la IA las responde con los mismos marcadores numerados. Diple funciona por completo sin él. Son dos plugins independientes, con repositorios y versiones propios: instala uno o los dos. Sin Diple, Diple Docs funciona por sí solo, **Copiar para la IA** incluido; solo enviar al chat necesita Diple.
 
 ## En qué se diferencia
 

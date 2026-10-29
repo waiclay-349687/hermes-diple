@@ -182,7 +182,7 @@ test('SendMenu: focus on the default item, arrows move, a scope keeps it open, a
       h(kit.SendMenu, {
         label: '发送',
         attrs: { 'data-x': '' },
-        onClose: () => log.push('close'),
+        onClose: (why) => log.push('close'),
         sections: [
           { key: 'scope', title: '范围', items: [{ key: 'one', label: '这一条', checked: scope === 'one', keep: true, onSelect: () => ((scope = 'one'), log.push('scope:one'), render()) }, { key: 'all', label: '全部', checked: scope === 'all', keep: true, onSelect: () => log.push('scope:all') }] },
           { key: 'to', title: '发送到', items: [{ key: 's1', label: '当前会话', default: true, onSelect: () => log.push('to:s1') }, { key: 's2', label: '另一个', onSelect: () => log.push('to:s2') }, { key: 'off', label: '不可用', disabled: true, onSelect: () => log.push('nope') }] }
@@ -214,6 +214,62 @@ test('SendMenu: focus on the default item, arrows move, a scope keeps it open, a
   assert.equal(log.filter((x) => x === 'close').length, 3, 'a click outside closes')
   await act(async () => root.unmount())
   host.remove()
+})
+
+// R11-K: onClose says why; Esc is caught on the document wherever focus is, and swallowed
+test('SendMenu: onClose(reason) — select, escape, tab, outside, scroll; Esc with focus on <body> closes; an outer Esc listener never sees it', async () => {
+  const { act, createElement: h } = React
+  const W = document.defaultView
+  const list = document.createElement('div')
+  list.style.overflow = 'auto'
+  const wrap = document.createElement('span')
+  list.append(wrap)
+  document.body.append(list)
+  const root = createRoot(wrap)
+  const reasons = []
+  const outer = []
+  const outerEsc = (e) => e.key === 'Escape' && outer.push(e.target.tagName)
+  document.addEventListener('keydown', outerEsc)
+  list.addEventListener('keydown', outerEsc)
+  let open = true
+  const render = () =>
+    root.render(open ? h(kit.SendMenu, { label: 'x', onClose: (why) => ((reasons.push(why), (open = false)), render()), sections: [{ key: 'to', items: [{ key: 'a', label: 'A', onSelect() {} }, { key: 'off', label: 'Off', disabled: true, onSelect() {} }] }] }) : null)
+  const reopen = () => act(async () => ((open = true), render()))
+  const keyOn = (el, k) => act(async () => el.dispatchEvent(new W.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })))
+  try {
+    await reopen()
+    await act(async () => wrap.querySelector('[data-send-item="a"]').click())
+    await reopen()
+    await keyOn(document.activeElement, 'Escape')
+    await reopen()
+    await keyOn(document.activeElement, 'Tab')
+    await reopen()
+    await act(async () => document.body.dispatchEvent(new W.MouseEvent('mousedown', { bubbles: true })))
+    await reopen()
+    // the scroll reason fires only for a menu that left its box
+    wrap.querySelector('[data-send-menu]').setAttribute('data-fixed', '')
+    await act(async () => list.dispatchEvent(new W.Event('scroll')))
+    assert.deepEqual(reasons, ['select', 'escape', 'tab', 'outside', 'scroll'])
+    // focus left the menu (a press on a disabled item lands on <body>): Esc still closes it
+    await reopen()
+    document.activeElement.blur()
+    assert.equal(document.activeElement, document.body)
+    const esc = new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    await act(async () => document.body.dispatchEvent(esc))
+    assert.equal(reasons.at(-1), 'escape')
+    assert.equal(wrap.querySelector('[data-send-menu]'), null, 'closed')
+    assert.ok(esc.defaultPrevented)
+    assert.deepEqual(outer, [], 'no Esc reached a listener under the menu (the list, the document)')
+    // closed: Esc goes through again
+    await keyOn(document.body, 'Escape')
+    assert.deepEqual(outer, ['BODY'])
+    assert.equal(reasons.length, 6)
+  } finally {
+    document.removeEventListener('keydown', outerEsc)
+    list.removeEventListener('keydown', outerEsc)
+    await act(async () => root.unmount())
+    list.remove()
+  }
 })
 
 test('SendMenu: a scrolling box that would cut it both ways → fixed at the trigger, inside the window; it closes when that box scrolls', async () => {

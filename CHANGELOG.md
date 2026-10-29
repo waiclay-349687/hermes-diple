@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows [Kee
 
 Planned work is in [ROADMAP.md](ROADMAP.md).
 
+## [0.2.2] - 2026-10-30
+
+The document plugin of the family is now public: [Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) v0.1.0.
+
+### Added
+
+- The README, in every language, has a **Companion** section: what [Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) (圈批·文档) is, and what changes with both plugins installed (its annotations join this plugin's pending list for the conversation).
+- [Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs), the plugin for annotating Markdown documents, is published in its own repository (it was on the roadmap as “publish the companion plugin”). It hands its annotations to this plugin through the hand-off protocol whose receiving side has been here since v0.1.0. The ADRs about it (0003, 0012–0014) are in its repository.
+
+### Fixed
+
+- The **Back to the input** link was covered by an open comment editor and could not be clicked. It now sits above the editor; clicking it saves the open comment first, then takes you back to the composer.
+- Clicking outside the strip's **Send N ▾** menu to close it no longer pulls the focus back to the menu button. A click in the composer keeps the composer focused, and a drag that starts in the transcript keeps the whole selection. Esc now closes the menu even when the focus is somewhere else.
+- Right after **Copy for AI**, its confirmation appeared in the bottom-right corner, over the strip's **Send N ▾** menu, and covered **Send now** for about five seconds. The confirmations that follow an action on the strip or its menu (**Copy for AI**, a cancelled queue, put back) now appear at the top of the window, so they no longer cover the strip or its menu; the plugin's other notices keep the app's usual place.
+
 ## [0.2.1] - 2026-10-29
 
 A fix for narrow chats, now that previews and other panes often dock beside the chat.
@@ -98,7 +113,8 @@ Compared with the pre-release builds used for testing:
 - Copied text in the display version is made inert, so an `@kind:` inside an annotation is never expanded by the host.
 - The plugin makes no network requests of its own and has no telemetry.
 
-[Unreleased]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/waiclay-349687/hermes-diple/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/waiclay-349687/hermes-diple/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/waiclay-349687/hermes-diple/releases/tag/v0.1.0

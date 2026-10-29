@@ -39,8 +39,8 @@ function FallbackDialog({ open, onClose, title, children }) {
   useEffect(() => {
     if (!open) return
     const prev = document.activeElement
-    ref.current?.focus()
-    return () => prev?.focus?.()
+    ref.current?.focus({ preventScroll: true })
+    return () => prev?.focus?.({ preventScroll: true })
   }, [open])
   if (!open) return null
   return (

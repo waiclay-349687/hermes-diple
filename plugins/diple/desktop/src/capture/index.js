@@ -133,7 +133,7 @@ export function installCapture(ctx, deps) {
   const focusLater = (selector, fallbackKey) =>
     setTimeout(() => {
       const el = selector && document.querySelector(selector)
-      if (el) el.focus()
+      if (el) el.focus({ preventScroll: true })
       else if (fallbackKey !== undefined) focusComposer(fallbackKey)
     }, 0)
 

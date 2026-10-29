@@ -5,6 +5,7 @@
 // texts. Out of scope (kept on purpose): the settings page — its component
 // and the `*.settings.*` message namespaces may show ⌘ ⇧ ↩ ↵ — and the
 // response marker's ↩ (a reply glyph, not a key).
+// Computed loads reviewed: see the override in publish/public-export-manifest.json.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'

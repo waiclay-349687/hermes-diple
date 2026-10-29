@@ -50,11 +50,11 @@ Hermes Desktop の会話で一節を選んでハイライトし、必要なら�
 
 ### 方法 A：リリースをダウンロード
 
-1. [最新リリース](https://github.com/waiclay-349687/hermes-diple/releases) から `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.1.zip`、`diple-python-0.2.1.zip.sha256` をダウンロードし、検証します：
+1. [最新リリース](https://github.com/waiclay-349687/hermes-diple/releases) から `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.2.zip`、`diple-python-0.2.2.zip.sha256` をダウンロードし、検証します：
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. 所定の場所に置きます：
@@ -62,7 +62,7 @@ Hermes Desktop の会話で一節を選んでハイライトし、必要なら�
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. バックエンドを有効にして Hermes Desktop を再起動します：
@@ -155,6 +155,12 @@ Windows と Linux では <kbd>⌘</kbd> は <kbd>Ctrl</kbd> です。コマン�
 ## 互換性
 
 Hermes Agent **v0.22.5 (2026.9.24)**、コミット `bf0203a`（2026-10-22）、macOS でテストしています。Hermes Desktop が必要です（CLI だけではデスクトッププラグインは読み込まれません）。他のバージョンでも動く可能性はありますが未検証です。結果を報告していただけると助かります。
+
+## 姉妹プラグイン：Diple Docs
+
+[Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs)（圈批·文档）はこのファミリーのドキュメント担当です。Hermes Desktop で Markdown ファイルを開き、文章にハイライトやコメントを付け、注釈をファイルごとに保存します。ファイルが変わっても各注釈は元の箇所を見つけ直し、未送信・送信済み・回答済み・解決済みのどれかを表示します。
+
+両方を入れると、ドキュメント画面の **送信** で注釈がこのプラグインの会話ごとの送信待ちリストに入り、チャットで付けた注釈と並びます。次のメッセージと一緒に送られ、AI は同じ番号付きマーカーで答えます。Diple はそれがなくてもすべての機能が使えます。二つは別々のプラグインで、リポジトリもリリースも別です。片方だけでも両方でも入れられます。Diple がなくても Diple Docs は単体で使え、**AI 用にコピー** も使えます。Diple が必要なのはチャットへの送信だけです。
 
 ## 類似プラグインとの違い
 

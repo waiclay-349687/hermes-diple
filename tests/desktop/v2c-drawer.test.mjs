@@ -99,6 +99,8 @@ test('cross-session: sending a list that is not the focused session asks first, 
   const dlg = document.querySelector('[data-diple-confirm-target="stored-2"]')
   assert.ok(dlg, 'confirm shown')
   assert.match(dlg.textContent, /「迁移 nanostores」/)
+  // the OK has focus (R11-L: an explicit focus({ preventScroll: true }), not autoFocus)
+  assert.equal(document.activeElement, dlg.querySelector('[data-diple-confirm-ok]'))
   await click(dlg.querySelector('[data-diple-confirm-cancel]'))
   assert.equal(sdk.submits.length, 0)
   assert.equal(h.backend.puts().length, 0)

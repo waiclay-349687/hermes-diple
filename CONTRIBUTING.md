@@ -39,12 +39,11 @@ hermes plugins enable diple
 
 ## Tests that are not in this repository
 
-This repository is exported from a private monorepo that also holds an unpublished companion plugin (Markdown document review). Tests that load that plugin's code were left out:
+This repository is exported from a private monorepo that also holds the companion plugin for Markdown documents, [Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs), which is published in its own repository. The shared packages (`packages/core`, `packages/desktop-kit`) are copied into both; a change to them is released in both.
 
-- desktop: `review*.test.mjs`, the document-page tests `v2d-*.test.mjs`, the document half of the mark-style check (`v2x-marks-docs.test.mjs`), the cross-plugin hand-off timing tests `handoff-r3…r6.test.mjs` and their rigs; two side-by-side locale cases in `locale-runtime.test.mjs` are skipped here (they need both plugins);
-- Python: `test_review_*.py`, `test_handoff_r6.py`, the Review half of the differential protocol test (`itemOutcomes`) and one cross-plugin case in `test_handoff_r5.py`.
+Tests are split by what they load: a test that uses only this plugin (and the shared packages) is here, one that uses only Diple Docs is in its repository, and the shared-package tests are in both. Two side-by-side locale cases in `locale-runtime.test.mjs` are skipped here (they need both plugins), and `test_protocol_diff.py` / `test_handoff_r5.py` are cut down to this plugin's half. The tests that load both plugins at once stay in the private monorepo: `tests/desktop/handoff-r3.test.mjs`, `tests/desktop/handoff-r4.test.mjs`, `tests/desktop/handoff-r5.test.mjs`, `tests/desktop/v2x-marks-docs.test.mjs`.
 
-The receiving side of the hand-off protocol, which lives in this plugin, is still covered here by `packages/core/test/handoff-*.test.mjs`, `tests/desktop/send*.test.mjs` and `tests/python/test_handoff_*.py`. Real-app end-to-end scripts (an isolated Hermes Desktop sandbox driven over CDP) are not published either.
+The receiving side of the hand-off protocol, which lives in this plugin, is still covered here by `packages/core/test/handoff-*.test.mjs`, `tests/desktop/send*.test.mjs` and `tests/python/test_handoff_*.py`; the sending side by Diple Docs's own tests. Real-app end-to-end scripts (an isolated Hermes Desktop sandbox driven over CDP) are not published.
 
 ## Conventions
 

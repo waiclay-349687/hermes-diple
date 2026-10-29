@@ -1,6 +1,7 @@
 // V2-I: the UI in every host locale. Parity of keys and placeholders against
 // en, every literal t('…') resolves, no stray CJK, the AI-facing language
 // stays zh/en, and a language switch relabels the live UI (jsdom).
+// Computed loads reviewed: see the override in publish/public-export-manifest.json.
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'

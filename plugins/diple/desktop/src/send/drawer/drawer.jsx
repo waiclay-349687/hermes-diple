@@ -98,7 +98,7 @@ function Drawer({ deps, drawer, titles, open }) {
   const shown = filter === 'all' ? records : records.filter((r) => r.status === filter)
 
   useEffect(() => {
-    ref.current?.focus()
+    ref.current?.focus({ preventScroll: true })
     const onKey = (e) => {
       if (e.key === 'Escape' && !e.isComposing) {
         e.stopPropagation()

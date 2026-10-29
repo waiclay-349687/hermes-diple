@@ -50,11 +50,11 @@
 
 ### 方式 A：下載 release
 
-1. 從[最新 release](https://github.com/waiclay-349687/hermes-diple/releases) 下載 `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.1.zip` 和 `diple-python-0.2.1.zip.sha256`，然後校驗：
+1. 從[最新 release](https://github.com/waiclay-349687/hermes-diple/releases) 下載 `plugin.js`、`plugin.js.sha256`、`diple-python-0.2.2.zip` 和 `diple-python-0.2.2.zip.sha256`，然後校驗：
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. 放到對應位置：
@@ -62,7 +62,7 @@
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. 啟用後端，然後重新啟動 Hermes 桌面端：
@@ -155,6 +155,12 @@ Windows 和 Linux 上 <kbd>⌘</kbd> 對應 <kbd>Ctrl</kbd>。命令面板（<kb
 ## 相容性
 
 已在 Hermes Agent **v0.22.5 (2026.9.24)**、commit `bf0203a`（2026-10-22）、macOS 上測試。需要 Hermes 桌面端（只有 CLI 不會載入桌面外掛）。其他版本可能可用但沒有測試過，歡迎回報。
+
+## 姊妹外掛：圈批·文檔
+
+[圈批·文檔（Diple Docs）](https://github.com/waiclay-349687/hermes-diple-docs) 是這個家族裡負責文件的那一個：在 Hermes 桌面版開啟 Markdown 檔案，劃線、寫批註，標註跟著檔案保存。檔案改動後，每條標註會重新找回原文位置，並顯示待發、已發、已回應還是已解決。
+
+兩個外掛都安裝時，在文件頁點「傳送」，文件裡的標註會進入本外掛該對話的待發列表，和聊天裡摘的標註排在一起，隨下一則訊息送出；AI 用同樣的編號標記逐條回應。不安裝它，圈批的功能也完全不受影響。兩者是獨立的外掛，各有儲存庫和發佈版本，可以只裝一個，也可以都裝。沒裝圈批時，圈批·文檔也能單獨使用，「複製給 AI」照樣能用；只有傳送到聊天才需要圈批。
 
 ## 與同類外掛的區別
 

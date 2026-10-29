@@ -1,5 +1,6 @@
 // jsdom + SDK stub harness: build a plugin against the stub, load it, and
 // drive it from register(ctx) only.
+// Computed loads reviewed: see the override in publish/public-export-manifest.json.
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'

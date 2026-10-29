@@ -1,3 +1,4 @@
+# Computed loads reviewed: see the override in publish/public-export-manifest.json.
 """Shared pytest setup: every test runs against a throwaway HERMES_HOME.
 
 The real ~/.hermes is never read or written: HERMES_HOME is pointed at a temp

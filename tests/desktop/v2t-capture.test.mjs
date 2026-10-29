@@ -42,7 +42,20 @@ class FakeHighlight extends Set {
 }
 w.Highlight = FakeHighlight
 if (!w.CSS) w.CSS = {}
-w.CSS.highlights = new Map()
+// Counts the redraws (every paint draws or clears diple-mark), so a test can wait
+// for "a redraw after the backend answered" instead of a fixed sleep.
+let paints = 0
+class CountingRegistry extends Map {
+  set(k, v) {
+    if (k === 'diple-mark') paints++
+    return super.set(k, v)
+  }
+  delete(k) {
+    if (k === 'diple-mark') paints++
+    return super.delete(k)
+  }
+}
+w.CSS.highlights = new CountingRegistry()
 const highlightTexts = (name) => [...(w.CSS.highlights.get(name) ?? [])].map((r) => r.toString())
 
 const geometry = new Map() // text → rect
@@ -98,7 +111,9 @@ function select(id, a, b = a) {
 }
 
 let deps = null
+let listedAt = null // the paint count when GET /batches? was last answered (sent marks read it)
 async function fresh({ settings, backendBatches } = {}) {
+  listedAt = null
   document.body.innerHTML = PRISTINE
   w.CSS.highlights.clear()
   geometry.clear()
@@ -118,7 +133,11 @@ async function fresh({ settings, backendBatches } = {}) {
   sdk.state.focusedStoredSessionId.set(MAIN)
   const backend = fakeDipleBackend()
   const rest = async (p, opts = {}) => {
-    if (p.startsWith('/batches?')) return { batches: backendBatches ?? [] }
+    if (p.startsWith('/batches?')) {
+      // runs before the caller's await resumes: any paint counted later follows the answer
+      Promise.resolve().then(() => (listedAt = paints))
+      return { batches: backendBatches ?? [] }
+    }
     return backend.rest(p, opts)
   }
   const h = makeCtx({ rest })
@@ -143,6 +162,18 @@ const run = async (h) => {
   await act(async () => tick(5))
 }
 const settle = () => act(async () => tick(260)) // highlight refresh is debounced
+// Wait for a condition instead of a fixed sleep: the debounced refreshes and the
+// backend read run on wall time, which a loaded machine stretches (as send.test.mjs).
+async function until(cond, what, { within = 15_000, step = 25 } = {}) {
+  const end = Date.now() + within
+  while (!cond()) {
+    if (Date.now() > end) throw new Error(`timed out after ${within} ms waiting for ${what}`)
+    await act(async () => tick(step))
+  }
+}
+const pinIds = () => pins().map((p) => p.getAttribute('data-item-id'))
+// the backend's batch statuses arrived and the marks were redrawn after them
+const redrawnAfterBackend = () => listedAt !== null && paints > listedAt
 const items = (h, key = MAIN) => h.ctx.storage.get(`list.${key}`, { items: [] }).items
 const editor = () => document.querySelector('[data-diple-editor]')
 const input = () => editor()?.querySelector('textarea')
@@ -153,6 +184,22 @@ async function type(text) {
   await act(async () => input().dispatchEvent(new w.Event('input', { bubbles: true })))
 }
 const press = async (el, type, extra = {}) => act(async () => el.dispatchEvent(new w.MouseEvent(type, { bubbles: true, cancelable: true, button: 0, ...extra })))
+// A shake is counted when it starts (MutationObserver: data-shake set where it was
+// absent), as tests/desktop/v3d3-draft.test.mjs does: the attribute's presence after
+// the fact depends on what else ran meanwhile. shaken(): a new shake since the last ask.
+let shakes = 0
+let seenShakes = 0
+const countShakes = (rs) => {
+  for (const r of rs) if (r.oldValue === null && r.target.hasAttribute?.('data-shake')) shakes++
+}
+const shakeObserver = new w.MutationObserver(countShakes)
+shakeObserver.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['data-shake'], attributeOldValue: true })
+const shaken = () => {
+  countShakes(shakeObserver.takeRecords())
+  const s = shakes > seenShakes
+  seenShakes = shakes
+  return s
+}
 const clickOutside = async (el = document.getElementById('side')) => {
   await press(el, 'mousedown')
   await press(el, 'mouseup')
@@ -274,9 +321,10 @@ test('outside: new + empty is discarded; new + text shakes and keeps the draft; 
   select('a2', '第二条回复')
   await run(h)
   await type('写了一半')
+  shaken()
   await clickOutside()
   assert.ok(editor(), 'kept')
-  assert.ok(editor().hasAttribute('data-shake'))
+  assert.ok(shaken(), 'shakes')
   assert.equal(input().value, '写了一半')
   assert.equal(document.activeElement, input(), 'focus back in the box')
   await key(input(), 'Enter')
@@ -294,6 +342,7 @@ test('selecting another passage keeps the editor; 用当前选区替换原文 sw
   select('a2', '第二条回复')
   await run(h)
   await type('意见')
+  shaken() // count from here
   const replace = () => editor().querySelector('[data-diple-editor-replace]')
   assert.equal(replace().disabled, true, 'nothing selected yet')
   const a1 = document.getElementById('a1')
@@ -304,7 +353,7 @@ test('selecting another passage keeps the editor; 用当前选区替换原文 sw
   await press(a1, 'click')
   await act(async () => tick(5))
   assert.ok(editor(), 'a selection gesture is not a click outside')
-  assert.equal(editor().hasAttribute('data-shake'), false)
+  assert.equal(shaken(), false, 'no shake')
   assert.equal(replace().disabled, false)
   await act(async () => replace().click())
   await act(async () => tick(20))
@@ -531,8 +580,7 @@ test('sent marks: half fill, dashed line, hollow pins; answered ✓ and missing 
   const { h, cleanup } = await fresh({ backendBatches: batches })
   seedSent(h)
   await act(async () => deps.lists.dispatch(MAIN, { type: 'add', id: 'x', item: { origin: { sessionId: MAIN, role: 'user', rowId: 11, messageTs: T1, ordinal: 1, roleOrdinal: 1, anchor: { text: '我想问' }, verified: true }, text: '我想问' } }))
-  await act(async () => tick(600))
-  await settle()
+  await until(() => redrawnAfterBackend() && ['sent-1', 'sent-2', 'x'].every((id) => pinIds().includes(id)), 'the sent, missing and pending pins after the backend answered')
   const states = Object.fromEntries(pins().map((p) => [p.getAttribute('data-item-id'), [p.textContent.replace(/\D/g, ''), p.getAttribute('data-state')]]))
   assert.deepEqual(states['sent-1'], ['1', 'answered'])
   assert.deepEqual(states['sent-2'], ['2', 'missing'])
@@ -563,11 +611,10 @@ test('sent marks: one per passage — the latest send wins, a pending annotation
   h.ctx.storage.set('batch.bnew0002', { batchId: 'bnew0002', sessionKey: MAIN, items: [{ id: 'new', origin, text: '第二条回复', comment: '新', revision: 1 }], at: 2 })
   h.ctx.storage.set('batches.index', ['bold0001', 'bnew0002'])
   await act(async () => deps.lists.dispatch(MAIN, { type: 'add', id: 'x', item: { origin: { ...origin, anchor: { text: '还有第三行' } }, text: '还有第三行' } }))
-  await act(async () => tick(600))
-  await settle()
+  await until(() => redrawnAfterBackend() && ['new', 'x'].every((id) => pinIds().includes(id)), 'the latest sent pin and the pending one')
   assert.deepEqual(pins().map((p) => [p.getAttribute('data-item-id'), p.getAttribute('data-state')]).sort(), [['new', 'sent'], ['x', 'highlight']])
   await act(async () => deps.lists.dispatch(MAIN, { type: 'add', id: 'y', item: { origin, text: '第二条回复' } }))
-  await settle()
+  await until(() => pinIds().includes('y'), 'the new pending pin')
   assert.deepEqual(pins().map((p) => p.getAttribute('data-item-id')).sort(), ['x', 'y'])
   await cleanup()
 })
@@ -581,7 +628,8 @@ test('sent marks: none when the backend says the batch failed or is unreachable,
     const { h, cleanup } = await fresh(opts)
     seedSent(h)
     await act(async () => deps.lists.dispatch(MAIN, { type: 'add', id: 'x', item: { origin: { sessionId: MAIN, role: 'user', rowId: 11, messageTs: T1, ordinal: 1, roleOrdinal: 1, anchor: { text: '我想问' }, verified: true }, text: '我想问' } }))
-    await act(async () => tick(600))
+    // (with marksKeepSent off the backend is never asked)
+    await until(() => (opts.settings?.marksKeepSent === false || redrawnAfterBackend()) && pinIds().includes('x'), `${label}: the pending pin after the backend answered`)
     await settle()
     assert.deepEqual(highlightTexts('diple-sent'), [], label)
     assert.deepEqual(pins().map((p) => p.getAttribute('data-item-id')), ['x'], label)

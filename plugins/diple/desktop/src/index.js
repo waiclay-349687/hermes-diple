@@ -64,7 +64,13 @@ export function createDeps(ctx) {
       currentKey: () => host.state.focusedStoredSessionId.get() || null,
       subscribe: (fn) => host.state.focusedStoredSessionId.listen(() => fn())
     },
+    // the host's placement: errors, warnings and actions top-center, routine info /
+    // success bottom-right (R11-L: all top-center folded a warning under 已加入 N 条)
     notify: (n) => host.notify?.(n),
+    // the confirmation of a click in the strip, its send menu or the receipt row under
+    // the composer: top-center, since the host's bottom-right toast lies over the
+    // composer's end, right on 直接发送 and its menu (R11-G)
+    notifyOverStrip: (n) => host.notify?.({ ...n, placement: 'default' }),
     // per-session busy state (stored ↔ runtime ids), shared by capture/ and send/
     live: createLive(),
     // V2: capture/ (T) ↔ send/ strip (C), design §3

@@ -68,3 +68,36 @@ test('Esc closes the menu and gives focus back to the ▾', async () => {
   assert.equal(view.q('[data-diple-send-menu]'), null)
   assert.equal(document.activeElement, toggle)
 })
+
+// R11-K: a press outside closes the menu and leaves focus where the user put it
+test('the menu open, a click in the composer closes it and focus stays in the composer; 复制给 AI gives it back to the ▾', async () => {
+  const h = fresh()
+  await seed(h, 'stored-1', two)
+  const view = await mount(h)
+  const toggle = view.q('[data-diple-send-menu-toggle]')
+  const composer = document.getElementById('composer')
+  await click(toggle)
+  assert.ok(view.q('[data-diple-send-menu]'))
+  await act(async () => {
+    composer.dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+    composer.focus()
+  })
+  await tick()
+  assert.equal(view.q('[data-diple-send-menu]'), null, 'closed')
+  assert.equal(document.activeElement, composer, 'focus stays in the composer')
+  await click(toggle)
+  await click(view.q('[data-diple-send-menu] [data-send-item="copy"]'))
+  assert.equal(view.q('[data-diple-send-menu]'), null)
+  assert.equal(document.activeElement, toggle, 'a pick gives focus back to the ▾')
+})
+
+test('Esc with focus outside the menu (on <body>) still closes it', async () => {
+  const h = fresh()
+  await seed(h, 'stored-1', two)
+  const view = await mount(h)
+  await click(view.q('[data-diple-send-menu-toggle]'))
+  document.activeElement.blur()
+  await act(async () => document.body.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+  assert.equal(view.q('[data-diple-send-menu]'), null)
+  assert.equal(document.activeElement, view.q('[data-diple-send-menu-toggle]'))
+})

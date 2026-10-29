@@ -1,0 +1,12 @@
+{
+  "//": "focus() calls in this plugin that the focus guard (tests/desktop/v3d3-focus-guard.test.mjs) lets through, each with the reason it scrolls nothing. Keys: path under desktop/ : line. Reviewed by hand (R11-K).",
+  "allowed": {
+    "src/capture/annotator.js:142": "the chat editor's own focus(), which passes { preventScroll: true } (capture/editor/index.js)",
+    "src/capture/annotator.js:168": "the chat editor's own focus(), which passes { preventScroll: true } (capture/editor/index.js)",
+    "src/capture/index.js:122": "the host's composer API (focus a session's composer), not an element",
+    "src/capture/ui-state.js:42": "a state field named focus (a request to bring a card forward), not the DOM method",
+    "src/capture/ui-state.js:43": "a state field named focus (a request to bring a card forward), not the DOM method",
+    "src/send/strip/strip.jsx:194": "a state field named focus (a request to bring a card forward), not the DOM method",
+    "src/send/strip/strip.jsx:197": "a state field named focus (a request to bring a card forward), not the DOM method"
+  }
+}

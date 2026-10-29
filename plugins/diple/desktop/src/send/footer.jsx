@@ -41,7 +41,7 @@ export function createFooter({ deps, sending: sendModule, live, dialogs, sendFro
       entries: items.map((it) => ({ label: originLabel(it.origin, key, t, titles?.titleOf), text: it.text, comment: it.comment }))
     })
     globalThis.navigator?.clipboard?.writeText?.(md)?.then?.(
-      () => deps.notify({ kind: 'success', title: t('send.copiedForAgent', items.length) }),
+      () => deps.notifyOverStrip({ kind: 'success', title: t('send.copiedForAgent', items.length) }),
       () => {}
     )
   }
@@ -52,9 +52,10 @@ export function createFooter({ deps, sending: sendModule, live, dialogs, sendFro
   function SendSplit({ sessionKey, count, items, onSend, disabled, t }) {
     const [open, setOpen] = useState(false)
     const toggle = useRef(null)
-    const close = () => {
+    // back to the toggle only after Esc, a pick or Tab; a click outside (the composer) keeps its focus
+    const close = (reason) => {
       setOpen(false)
-      toggle.current?.focus()
+      if (reason === 'escape' || reason === 'select' || reason === 'tab') toggle.current?.focus({ preventScroll: true })
     }
     return (
       <span className="diple-send-split">
@@ -162,7 +163,7 @@ export function createFooter({ deps, sending: sendModule, live, dialogs, sendFro
       info = <Info kind="muted">{queued.waiting ? t('send.queueWaiting') : queued.stalled ? t('send.queuedStalled') : t('send.queued')}</Info>
       actions = (
         <>
-          <Btn variant="ghost" data-diple-queue-cancel="" onClick={async () => (await sendModule.resolve(sessionKey, { type: 'cancel-queue' })).ok && deps.notify({ kind: 'info', title: t('send.queueCancelled') })}>
+          <Btn variant="ghost" data-diple-queue-cancel="" onClick={async () => (await sendModule.resolve(sessionKey, { type: 'cancel-queue' })).ok && deps.notifyOverStrip({ kind: 'info', title: t('send.queueCancelled') })}>
             {t('send.cancelQueue')}
           </Btn>
           {idleStuck ? (
@@ -259,7 +260,7 @@ export function createReceiptRow({ deps, sending, dialogs, drawer = null, titles
       setBusy(true)
       try {
         const { count: n } = await sending.resolve(sessionKey, { type: 'put-back-notice', batchId: notice.batchId, numbers })
-        deps.notify({ kind: 'success', title: t('send.putBackDone', n) })
+        deps.notifyOverStrip({ kind: 'success', title: t('send.putBackDone', n) })
       } finally {
         setBusy(false)
       }

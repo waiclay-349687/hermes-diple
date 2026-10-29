@@ -50,11 +50,11 @@ Das Plugin hat zwei Hälften: ein Desktop-Plugin (`plugin.js`) und ein kleines P
 
 ### Option A: ein Release herunterladen
 
-1. Laden Sie `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.1.zip` und `diple-python-0.2.1.zip.sha256` aus dem [neuesten Release](https://github.com/waiclay-349687/hermes-diple/releases) herunter und prüfen Sie sie:
+1. Laden Sie `plugin.js`, `plugin.js.sha256`, `diple-python-0.2.2.zip` und `diple-python-0.2.2.zip.sha256` aus dem [neuesten Release](https://github.com/waiclay-349687/hermes-diple/releases) herunter und prüfen Sie sie:
 
    ```bash
    shasum -a 256 -c plugin.js.sha256
-   shasum -a 256 -c diple-python-0.2.1.zip.sha256
+   shasum -a 256 -c diple-python-0.2.2.zip.sha256
    ```
 
 2. Legen Sie sie an ihren Platz:
@@ -62,7 +62,7 @@ Das Plugin hat zwei Hälften: ein Desktop-Plugin (`plugin.js`) und ein kleines P
    ```bash
    mkdir -p ~/.hermes/desktop-plugins/diple ~/.hermes/plugins
    cp plugin.js ~/.hermes/desktop-plugins/diple/plugin.js
-   unzip -o diple-python-0.2.1.zip -d ~/.hermes/plugins/
+   unzip -o diple-python-0.2.2.zip -d ~/.hermes/plugins/
    ```
 
 3. Aktivieren Sie das Backend und starten Sie Hermes Desktop neu:
@@ -155,6 +155,12 @@ Die wichtigsten (vollständige Liste mit Gründen in [docs/known-limitations.md]
 ## Kompatibilität
 
 Getestet mit Hermes Agent **v0.22.5 (2026.9.24)**, Commit `bf0203a` (2026-10-22), unter macOS. Benötigt Hermes Desktop (die CLI allein lädt keine Desktop-Plugins). Andere Versionen können funktionieren, wurden aber nicht getestet; bitte melden Sie, was Sie feststellen.
+
+## Begleit-Plugin: Diple Docs
+
+[Diple Docs](https://github.com/waiclay-349687/hermes-diple-docs) (圈批·文档) ist das Familienmitglied für Dokumente: Öffnen Sie eine Markdown-Datei in Hermes Desktop, markieren und kommentieren Sie Passagen und behalten Sie die Anmerkungen bei der Datei. Nach einer Änderung der Datei findet jede Anmerkung ihre Stelle wieder und zeigt, ob sie gesendet, beantwortet oder erledigt ist.
+
+Sind beide Plugins installiert, legt **Senden** auf der Dokumentseite deren Anmerkungen in die Warteliste dieses Plugins für die Unterhaltung, neben die aus dem Chat; sie gehen mit Ihrer nächsten Nachricht hinaus, und die KI beantwortet sie mit denselben nummerierten Markierungen. Diple funktioniert auch ohne es vollständig. Es sind zwei getrennte Plugins mit eigenen Repositorys und Releases: Installieren Sie eines oder beide. Ohne Diple funktioniert Diple Docs für sich allein, **Für die KI kopieren** eingeschlossen; nur das Senden in den Chat braucht Diple.
 
 ## Was es unterscheidet
 
